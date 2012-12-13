@@ -1,4 +1,12 @@
-#$Id$
+#initial:
+# use make target T=10
+#or
+# use make target TARGET=fullosname
+#
+#build copies only .java stuff from src/ into src_/, converting symlinks into hardlinks
+#and embeds bzr-version into AndroidManifest.xml - original should be myAndroidManifest.xml
+#needs symlinker.py from svd_util
+
 ANDROID?=/home/android-sdk-linux_86
 ifeq (,$(find $(ANDROID)/tools,$(PATH)))
 export PATH:=$(ANDROID)/tools:$(PATH)
@@ -10,8 +18,8 @@ SDCARD?=sdcard.img
 AVD?=a23
 DNS?=192.168.100.1
 
-APP = com.CK.project.LifeOrganizer
-APPNAME = LifeOrganizer
+APP = com.the.app.package
+APPNAME = somename
 
 #no paralelism here
 #MAKEFLAGS=j1
@@ -27,12 +35,14 @@ REL = debug
 PACK=$(wildcard bin/*$(REL).apk)
 #PACK=bin/$(APPNAME)-debug.apk
 
+SYMLINKER = PATH=..:$$PATH PYTHONPATH=../py:../../py symlinker.py
+
 build:
 	perl -ne 's/(android:versionName=)".*?"/\1"$(VER)"/;s/(android:versionCode=)".*?"/\1"$(VERi)"/;print' myAndroidManifest.xml > AndroidManifest.xml
 	rm -rf src_
 	#cd src; for a in `find -L ./ -name \*.java -exec dirname {} \; | sort | uniq`; do  mkdir -p ../src_/$$a; ln $$a/*.java ../src_/$$a; done
 	#cp -rl src src_; find -L src_ -not -name \*.java -a -not -type d -a -exec rm {} \;
-	PATH=..:$$PATH PYTHONPATH=../py:../../py symlinker.py --op=link --inc='*.java' src src_
+	$(SYMLINKER) --op=link --inc='*.java' src src_
 	ant $(REL)
 
 install: build
@@ -69,7 +79,10 @@ clean:
 sd:
 	sudo mount -o loop sdcard /media/android_sdcard
 
-DB=databases
+DB= #databases
+#e.g. DB=databases or wherever they are
+getdb:
+	adb pull /data/data/$(APP)/$(DB) .
 putdb:
 	adb shell mkdir   /data/data/$(APP)/$(DB)/
 	adb push myepg.db /data/data/$(APP)/$(DB)/
@@ -79,9 +92,6 @@ catpref:
 rmpref:
 	adb -e shell rm /data/data/$(APP)/sh*/com*
 
-getdb:
-	adb pull /data/data/$(APP)/$(DB) .
-
 log:
 	adb -e logcat
 
@@ -89,7 +99,7 @@ shell:
 	adb shell $(ARGS)
 
 SRC?= src
-EXCLUDE= src_ osha
+EXCLUDE= src_
 .PHONY: tags
 tag tags:
 	ctags -R --langmap=matlab: $(EXCLUDE:%=--exclude=%) $(SRC)

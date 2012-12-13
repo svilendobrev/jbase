@@ -1,7 +1,7 @@
 package com.svilendobrev.storage;
 
 import com.svilendobrev.jbase.funk;
-import com.svilendobrev.jbase.Model;
+//import com.svilendobrev.jbase.Model;
 
 import java.io.Serializable;
 
@@ -423,7 +423,7 @@ class touchdb {
 
     static public abstract
     class Model
-    //extends com.woosha.jbase.Model
+    //extends com.svilendobrev.jbase.Model
     implements Serializable
     {
     /*
@@ -488,6 +488,21 @@ class touchdb {
         public <T extends Model> List< T> load_org( ViewResult vr)                      { return load_org_guess( vr); }
     }
 
+    public void insert( Model x, String dbname ) {
+        Base b = modelklas2db.get( x.getClass() );
+        create( dbname, b.save( x, null));
+    }
+    public void update( Model x, String dbname ) {
+        Base b = modelklas2db.get( x.getClass() );
+        update( dbname, b.save( x, null));
+    }
+    public void delete( Model x, String dbname ) {
+        Base b = modelklas2db.get( x.getClass() );
+        delete( dbname, b.save( x, null));
+    }
+
+
+    ////////// app specific XXX - inherit then whatever /////////
 /*  //as in jbase.sqlite:
     //all Base/db-model-clones - generated or handmade - have to be registered (just create one)
     //BEFORE db is created; e.g. in some static block/method
@@ -504,22 +519,7 @@ class touchdb {
     }
 */
 
-    public void insert( Model x, String dbname ) {
-        Base b = modelklas2db.get( x.getClass() );
-        create( dbname, b.save( x, null));
-    }
-    public void update( Model x, String dbname ) {
-        Base b = modelklas2db.get( x.getClass() );
-        update( dbname, b.save( x, null));
-    }
-    public void delete( Model x, String dbname ) {
-        Base b = modelklas2db.get( x.getClass() );
-        delete( dbname, b.save( x, null));
-    }
 
-
-    ////////// bugger specific XXX /////////
-    ////////// bugger specific XXX /////////
 /*
     public ViewResult
     q_dbs_raw() {
@@ -549,46 +549,16 @@ class touchdb {
     public List< Models.Place>
     q_places_by_owner( String owner) { return _q_places( _q_places_by_owner_raw( owner) ); }
 
-    public
-    Model load_discu_item( JsonNode v) {
-        // for stream/changes, use such abstract Model load() and switch by instanceof() ???
-        String type = dbtouch.db2string( v.get( "type" ));
-        if (type == null) return null;
-        else if (type.equals( genTouchdb.DiscuPerson.consts.type ))  return genTouchdb.DiscuPerson.base.load_org( v);
-        else if (type.equals( genTouchdb.DiscuTitle.consts.type ))   return genTouchdb.DiscuTitle.base.load_org( v);
-        else if (type.equals( genTouchdb.DiscuVote.consts.type ))    return genTouchdb.DiscuVote.base.load_org( v);
-        else if (type.equals( genTouchdb.DiscuComment.consts.type )) return genTouchdb.DiscuComment.base.load_org( v);
-        else Log.e( TAG, "unknown type: " + type + " " + v);
-        return null;
-    }
-
-    public class xCouchDbRepositorySupport<T> extends CouchDbRepositorySupport<T> {
-	    protected xCouchDbRepositorySupport( Class<T> type, CouchDbConnector db, String designDocName) { super( type, db, designDocName); }
-        @Override
-        public List<T> getAll() {
-            if (x_designDocContainsAllView()) return queryView("all");
-            return super.getAll();
-        }
-	    boolean x_designDocContainsAllView() {
-            funk.assertTrue( stdDesignDocumentId.startsWith( "_design/") );
-            String dd = stdDesignDocumentId.substring( funk.len( "_design/") );
-            return null != server.getDatabaseNamed( db.getDatabaseName(), false ).getExistingViewNamed( dd+"/all" );
-	    }
-    }
 */
-/* TODO FIXME
+/*
  - needs at-least empty design-doc for each view, as getAll() checks for document presence.
-    TDRouter??
-   done workaround, override CouchDbRepositorySupport.getAll()
+   done workaround TouchDbRepositorySupport: override CouchDbRepositorySupport.getAll()
 
- - QQueryResultParser/TDView row.value order mismatch:
-    TDView.queryWithOptions returns rows as maps -- make them LinkedMaps , and make value added last in a row.
-    monkey-patching ... not doable.
-   done - fix TDView by hand
+ - QueryResultParser expects row to be ordered map... TDView.queryWithOptions returns maps
+    fixed in Ektorp 1.4.*
    or
     use ViewResult, then for each, mapper.convertValue( node, target.class) - unclear how much slower this is
 */
 
 } //dbtouch
 // vim:ts=4:sw=4:expandtab
-

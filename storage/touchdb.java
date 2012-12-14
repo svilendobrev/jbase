@@ -33,6 +33,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import org.ektorp.android.util.CouchbaseViewListAdapter;
 import org.ektorp.DbAccessException;
 import org.ektorp.android.util.EktorpAsyncTask;
@@ -421,6 +424,7 @@ class touchdb {
     //...
     ////////////
 
+    @JsonIgnoreProperties(ignoreUnknown=true)       //ignore anything unknown at read
     static public abstract
     class Model
     //extends com.svilendobrev.jbase.Model
@@ -434,6 +438,7 @@ class touchdb {
     */
         //@Override
         //public long getId()     { return 1/0; }
+        @JsonIgnore     //XXX Ektorp/jackson will map+write anything with get* ..
         public abstract String getId() ;// { return _id; } //persistence
         public String toString()        { return dump(); }      //visualisation/short text /explain
         public String dump() {

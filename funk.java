@@ -89,6 +89,23 @@ static public <T>  T get( ArrayList<T> x, int i) { return get( x,i,null); }
 static public <T>  T pop( ArrayList<T> x, int i) { return pop( x,i,null); }
 static public <T>  T last( ArrayList<T> x) { return last( x, null); }
 
+static public <K,V>  V setdefault( Map<K,V> m, K key, V vdef) {
+    V v = m.get( key);
+    if (v==null) { v = vdef; m.put( key, v); }
+    return v;
+}
+/* doesnt work... Set<String>.class can be faked as Set.class then casted but then newInstance fails..
+static public <K,V>  V setdefault( Map<K,V> m, K key, Class vdef) {
+    V v = m.get( key);
+    if (v==null) {
+        try {
+            v = (V)vdef.newInstance();
+        } catch (Exception e) { v = null; }
+        m.put( key, v);
+    }
+    return v;
+}
+*/
 
 static public
 void split( String input, String regex, Collection< String> r, boolean skip_empties) {
@@ -125,7 +142,7 @@ void split_skip_empties( String input, String regex, Collection< String> r) { sp
 
 static public
 ArrayList<String> split_skip_empties( String input, String regex ) {
-    ArrayList<String> r = new ArrayList<String>();
+    ArrayList<String> r = new ArrayList();
     split( input, regex, r, true);
     return r;
 }

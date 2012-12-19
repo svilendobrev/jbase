@@ -1,7 +1,24 @@
 #initial:
-# use make target T=10
+#$ make
+# >will make AndroidManifest.xml from myAndroidManifest.xml then die
+#
+#$ export ANDROID=/whereever/android-sdk-linux_86
+#$ make target T=10
+# or # make target TARGET=fullosname
+# >will fix local.properties / project.properties
+#
+#$ fix by hand the local.properties / project-properties in all dependencies
+#
+#if needs android.support.v4/
+#$ make support.libs
+#
+#run emulator
+#$ make emu AVD=youravdimage DNS=yourdns
+#
+#$ make
 #or
-# use make target TARGET=fullosname
+# $ make inst      -for only copying to emu
+# $ make phone 	-for only copying to phone
 #
 #build copies only .java stuff from src/ into src_/, converting symlinks into hardlinks
 #and embeds bzr-version into AndroidManifest.xml - original should be myAndroidManifest.xml
@@ -55,12 +72,12 @@ inst:
 phone:
 	adb -d install -r $(PACK)
 
-emu:
+emu_new:
 	#android create avd --name devtest --target 1
 	#sudo umount /media/android_sdcard
 	emulator -avd $(AVD) -sdcard $(SDCARD) -dns-server $(DNS) -wipe-data &
 
-emu_restart:
+emu:
 	emulator -avd $(AVD) -sdcard $(SDCARD) -dns-server $(DNS) &
 
 sdcard:
@@ -115,6 +132,10 @@ target-map: TARGET="Google Inc.:Google APIs:$T"
 
 targets:
 	android list targets
+
+support.libs:
+	mkdir -p libs
+	ln -sf $(ANDROID)/extras/android/support/v4/android-support-v4.jar libs/
 
 RELDIR_root = /somewhere/android
 RELDIR = $(RELDIR_root)/$(APPNAME)

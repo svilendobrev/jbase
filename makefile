@@ -53,6 +53,7 @@ PACK=$(wildcard bin/*$(REL).apk)
 #PACK=bin/$(APPNAME)-debug.apk
 
 SYMLINKER = PATH=..:$$PATH PYTHONPATH=../py:../../py symlinker.py
+SRC_EXCLUDE =
 
 build:
 	perl -ne 's/(android:versionName=)".*?"/\1"$(VER)"/;s/(android:versionCode=)".*?"/\1"$(VERi)"/;print' myAndroidManifest.xml > AndroidManifest.xml
@@ -60,6 +61,7 @@ build:
 	#cd src; for a in `find -L ./ -name \*.java -exec dirname {} \; | sort | uniq`; do  mkdir -p ../src_/$$a; ln $$a/*.java ../src_/$$a; done
 	#cp -rl src src_; find -L src_ -not -name \*.java -a -not -type d -a -exec rm {} \;
 	$(SYMLINKER) --op=link --inc='*.java' src src_
+	cd src_; rm -f $(SRC_EXCLUDE)
 	ant $(REL)
 
 install: build
@@ -139,11 +141,12 @@ support.libs:
 
 RELDIR_root = /somewhere/android
 RELDIR = $(RELDIR_root)/$(APPNAME)
+RELTARGET = $(RELDIR)/$(APPNAME)
 
 rel release:
 	#mkdir -p $(RELDIR)/old/
 	#mv $(RELDIR)/*apk $(RELDIR)/old/
-	cp $(PACK) $(RELDIR)/$(APPNAME)_`date +%Y%m%d`_$(VER).apk
+	cp $(PACK) $(RELTARGET)_`date +%Y%m%d`_$(VER).apk
 
 PID=$(APP)
 memtrace:

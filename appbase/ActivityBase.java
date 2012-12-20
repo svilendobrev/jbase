@@ -8,6 +8,7 @@ import com.svilendobrev.jbase.datetime;
 //import com.svilendobrev.appbase.Flow;
 //import com.svilendobrev.ui.MenuDescr;
 //import com.svilendobrev.ui.ManagedDialog;
+import com.svilendobrev.appbase.MenuDescr2.ResultCallback;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -383,9 +384,9 @@ public abstract class ActivityBase<S extends StateBase> extends Activity {
     }
 
     static private int childKey = 0;
-    static protected HashMap< Integer, MenuDescr.ResultCallback<? extends ActivityBase>> callbacks = new HashMap();
+    static protected HashMap< Integer, ResultCallback<? extends ActivityBase>> callbacks = new HashMap();
 
-    public void startChild( Class<? extends Activity> childClass, MenuDescr.ResultCallback<? extends ActivityBase> callback) {
+    public void startChild( Class<? extends Activity> childClass, ResultCallback<? extends ActivityBase> callback) {
         Intent i = new Intent(this, childClass);
         startChild( i, callback);
     }
@@ -395,7 +396,7 @@ public abstract class ActivityBase<S extends StateBase> extends Activity {
         startChild( i, null);
     }
 
-    public void startChild( Intent i, MenuDescr.ResultCallback<? extends ActivityBase> callback) {
+    public void startChild( Intent i, ResultCallback<? extends ActivityBase> callback) {
         callbacks.put( childKey, callback);
         startActivityForResult( i, childKey);
         childKey++;
@@ -407,7 +408,7 @@ public abstract class ActivityBase<S extends StateBase> extends Activity {
         debug("onActivityResult");
         _resumedFromChild = true;
 
-        MenuDescr.ResultCallback<? extends ActivityBase> callback = callbacks.get( requestCode);
+        ResultCallback<? extends ActivityBase> callback = callbacks.get( requestCode);
 
         if (callback != null) {
             callback.setContext(this);

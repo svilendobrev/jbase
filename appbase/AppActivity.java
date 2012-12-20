@@ -65,7 +65,7 @@ public abstract class AppActivity<S extends StateApp> extends ActivityBase<S> {
 
     boolean factory_reset;
 
-    static public MenuDescr.ResultCallback<AppActivity> preferencesCallback = new MenuDescr.ResultCallback<AppActivity>() { public void resultCancel( Intent data) {
+    static public MenuDescr2.ResultCallback<AppActivity> preferencesCallback = new MenuDescr2.ResultCallback<AppActivity>() { public void resultCancel( Intent data) {
         boolean init, update, restart;
         this.context.factory_reset = init = update = restart = false;
         for (Prefs.Pref p : this.context.getAppData().prefs.changes) {

@@ -19,33 +19,25 @@ class MenuDescr {
 
 public static
 class D {
-    static public interface Updater {
-        public void update( MenuItem item);
-    }
     public Class<? extends Activity> activityClass;  // the child activity to start
-    public ResultCallback<? extends ActivityBase> callback;
 
     public MenuHandler menuHandler;  //for executing simple routine (no child activity involved)
-    public Updater updater;
+    public MenuUpdater updater;
 
     /** constructors with child activity */
     public D( Class<? extends Activity> activityClass) {
         this.activityClass = activityClass;
-    }
-    public D( Class<? extends Activity> activityClass, ResultCallback<? extends ActivityBase> callback) {
-        this( activityClass);
-        this.callback = callback;
     }
 
     /** constructors with simple handler */
     public D( MenuHandler menuHandler) {
         this.menuHandler = menuHandler;
     }
-    public D updater( Updater updater) {
+    public D updater( MenuUpdater updater) {
         this.updater = updater;
         return this;
     }
-    public D( MenuHandler menuHandler, Updater updater) {
+    public D( MenuHandler menuHandler, MenuUpdater updater) {
         this( menuHandler);
         this.updater = updater;
     }
@@ -59,26 +51,15 @@ class D {
         //if (checkable)
         //    item.setChecked( !item.isChecked());
         if (activityClass != null) {
-            if (callback == null)
-                context.startActivity( new Intent( context, activityClass));
-            else
-                context.startChild( activityClass, callback);
+            context.startActivity( new Intent( context, activityClass));
         }
     }
+} //D
+
+static public
+interface MenuUpdater {
+    public void update( MenuItem item);
 }
-
-public static
-class ResultCallback<T> {
-    public T context;
-
-    public void setContext( ActivityBase context) {
-        this.context = (T) context;
-    }
-
-    public void resultOk( Intent data) {}
-    public void resultCancel( Intent data) {}
-}
-
 public static
 interface MenuHandler {
     public void handle( MenuItem item);
@@ -118,13 +99,10 @@ interface DynamicTitle{
     public D put( int id, Class<? extends Activity> activityClass) {
         return put( id, new D( activityClass));
     }
-    public D put( int id, Class<? extends Activity> activityClass, ResultCallback<? extends ActivityBase> callback) {
-        return put( id, new D( activityClass, callback));
-    }
     public D put( int id, MenuHandler menuHandler) {
         return put( id, new D( menuHandler));
     }
-    public D put( int id, MenuHandler menuHandler, D.Updater updater) {
+    public D put( int id, MenuHandler menuHandler, MenuUpdater updater) {
         return put( id, new D( menuHandler, updater));
     }
 
@@ -160,6 +138,5 @@ interface DynamicTitle{
         }
     }
 } //MenuDescr
-
 
 // vim:ts=4:sw=4:expandtab

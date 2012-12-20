@@ -21,6 +21,14 @@ import java.util.ArrayList;
 // XXX to get this looking ~ok, and then the dropdown is too short, and items dont show well...
 
 public class TextHistory extends DialogPreference {
+    public
+    static int _item_layout_id = android.R.layout.simple_list_item_1 ;          // Large
+                            //XXX better hack your own
+                            //android.R.layout.simple_dropdown_item_1line,  // LargeInverse
+                            //android.R.layout.simple_list_item_1,          // Large
+                            //android.R.simple_expandable_list_item_1,      // Large
+                            //android.R.layout.test_list_item,              // Small
+
     static
     public class aTextHistory {
         protected String key;
@@ -71,10 +79,7 @@ public class TextHistory extends DialogPreference {
             set_oldvalue();
             loadItems();
             if (funk.any( items) ) {
-                lv.setAdapter( new ArrayAdapter<String>( context,
-                            android.R.layout.simple_dropdown_item_1line,    //XXX better hack your own
-                            funk.toArray( items) ));
-
+                lv.setAdapter( new ArrayAdapter<String>( context, _item_layout_id, funk.toArray( items) ));
                 lv.setOnItemClickListener( new AdapterView.OnItemClickListener() {
                     public void onItemClick( AdapterView<?> parent, View view, int position, long id) {
                         veditor.setText( items.get( position));

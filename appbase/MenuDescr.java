@@ -45,7 +45,7 @@ class D {
         if (updater!=null) updater.update( item);
     }
 
-    public void start( ActivityBase context, MenuItem item) {
+    public void start( Activity context, MenuItem item) {
         if (menuHandler != null)
             menuHandler.handle( item);
         //if (checkable)
@@ -106,7 +106,7 @@ interface DynamicTitle{
         return put( id, new D( menuHandler, updater));
     }
 
-    public boolean start( ActivityBase context, MenuItem item) {
+    public boolean start( Activity context, MenuItem item) {
         if (item.hasSubMenu())
             return true;
         D d = descr.get( item.getItemId());

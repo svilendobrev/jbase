@@ -3,7 +3,7 @@ package com.svilendobrev.pref;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-/*
+/* new Preference types:
 usage: actual thing-inheriting-Preference should get the default value
 and use it in ctor / onCreateDialogView / onAttachedToHierarchy e.g.
 

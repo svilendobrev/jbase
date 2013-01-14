@@ -13,8 +13,6 @@ import android.content.SharedPreferences;
 
 import android.text.method.SingleLineTransformationMethod;
 
-import java.util.ArrayList;
-
 // FIXME not good for a history - use TextHistory itself and use+fix this when a real Completer is needed
 // XXX a lot of playing with styles (text color/size/padding/...) is needed
 // XXX to get this looking ~ok, and then the dropdown is too short, and items dont show well...

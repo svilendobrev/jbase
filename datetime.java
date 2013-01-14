@@ -49,7 +49,7 @@ public static DateFormat fixDateFormat( DateFormat df) {
     _allDateFormats.add( df);
     return df;
 }
-static ArrayList< DateFormat> _allDateFormats = new ArrayList< DateFormat>();
+static ArrayList< DateFormat> _allDateFormats = new ArrayList();
 public static void fixAllDateFormats() {
     for (DateFormat df: _allDateFormats)
         _fixDateFormat( df);
@@ -119,7 +119,7 @@ static public
 abstract class dtfm {
     DateFormat fmt;
 
-    static ArrayList< dtfm> _all = new ArrayList< dtfm>();
+    static ArrayList< dtfm> _all = new ArrayList();
     dtfm() { _all.add( this); }
     abstract void _setup( Context c);
     public String withoutYear( Date t) { return datetime.withoutYear( fmt, t); }

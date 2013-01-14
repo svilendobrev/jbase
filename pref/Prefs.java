@@ -36,11 +36,11 @@ public
 class Prefs implements SharedPreferences.OnSharedPreferenceChangeListener {
     private Context context;
     private SharedPreferences prefs;
-    private HashMap< Integer, Pref> _defs = new HashMap< Integer, Pref>();
-    private HashMap< String,  Pref> _defs4key = new HashMap< String, Pref>();
+    private HashMap< Integer, Pref> _defs = new HashMap();
+    private HashMap< String,  Pref> _defs4key = new HashMap();
 
     public
-    ArrayList< Pref> changes = new ArrayList< Pref>();
+    ArrayList< Pref> changes = new ArrayList();
 
     public
     Prefs( Context c ) {
@@ -174,7 +174,7 @@ class Pref {
     protected Object _value, _default_value;
 
     protected
-    ArrayList< String > _common_actions = new ArrayList< String>();
+    ArrayList< String > _common_actions = new ArrayList();
 
     public
     boolean equals( Object o) { return o instanceof Pref && ((Pref)o).id == id; }

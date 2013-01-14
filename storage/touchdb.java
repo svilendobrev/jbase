@@ -464,16 +464,16 @@ class touchdb {
         public abstract ObjectNode save( Model source, JsonNode result); //ret result
         public Model load( JsonNode c) { return load( null, c); }
 
-        public List< Model>
-        load_as_Models( ViewResult vr, List< Model> r, Boolean use_value ) {
-            if (r==null) r = new ArrayList();
+        public Model.Collection
+        load_as_Models( ViewResult vr, Model.Collection r, Boolean use_value ) {
+            if (r==null) r = Model.newCollection();
             for (ViewResult.Row x: vr.getRows())
                 r.add( load( row2doc( x, use_value) ));
             return r;
         }
-        public List< Model> load_as_Models( ViewResult vr, List< Model> r)      { return load_as_Models( vr, r, null); }
-        public List< Model> load_as_Models( ViewResult vr, boolean use_value)   { return load_as_Models( vr, null, use_value ); }
-        public List< Model> load_as_Models( ViewResult vr)                      { return load_as_Models( vr, null, null); }
+        public Model.Collection load_as_Models( ViewResult vr, Model.Collection r)  { return load_as_Models( vr, r, null); }
+        public Model.Collection load_as_Models( ViewResult vr, boolean use_value)   { return load_as_Models( vr, null, use_value ); }
+        public Model.Collection load_as_Models( ViewResult vr)                      { return load_as_Models( vr, null, null); }
 
         public <T extends Model> List< T>
         load_org( ViewResult vr, List< T> r, Boolean use_value) {

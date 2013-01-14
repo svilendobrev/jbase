@@ -38,7 +38,7 @@ class sqlite {
 */
 
     static protected
-    HashMap< Class, Base> modelklas2db = new HashMap< Class, Base>();
+    HashMap< Class, Base> modelklas2db = new HashMap();
     static {
         //genSQLite.setup();  //register generateds
 //        new Setting.db();
@@ -139,7 +139,7 @@ class sqlite {
 
     static public
     ArrayList<String> query1column( SQLiteDatabase db, String tablename, String column, String where, String orderBy ) {
-        ArrayList<String> r = new ArrayList<String>();
+        ArrayList<String> r = new ArrayList();
         Cursor c = query( db, tablename, new String[] { column }, where, orderBy, null);
         if (c.moveToFirst()) do {
                 r.add( c.getString(0));
@@ -187,13 +187,13 @@ class sqlite {
     public void getAll( Class klas, Collection<Model> result, String where, String orderBy) { getAll( klas, result, where, orderBy, null); }
     public void getAll( Class klas, Collection<Model> result) { getAll( klas, result, null, null, null); }
 
-    public ArrayList<Model> getAll( Class klas, String where, String orderBy, String limit) {
-        ArrayList< Model> result = new ArrayList< Model>();
+    public Model.Collection getAll( Class klas, String where, String orderBy, String limit) {
+        Model.Collection result = Model.newCollection();
         getAll( klas, result, where, orderBy, limit);
         return result;
     }
-    public ArrayList<Model> getAll( Class klas, String where, String orderBy) { return getAll( klas, where, orderBy, null); }
-    public ArrayList<Model> getAll( Class klas) { return getAll( klas, null, null); }
+    public Model.Collection getAll( Class klas, String where, String orderBy) { return getAll( klas, where, orderBy, null); }
+    public Model.Collection getAll( Class klas) { return getAll( klas, null, null); }
 
 /*
     public void getAll( Class klas, Map<Integer,Model> result, String where, String orderBy) {
@@ -203,7 +203,7 @@ class sqlite {
 */
 /*
     public Model get1st( Class klas, String where) {
-        ArrayList< Model> result = getAll( klas, where, null, "1");
+        Model.Collection result = getAll( klas, where, null, "1");
         return funk.not(result) ? null : result.get(0);
     }
     public Model get1st( Model some4key) {
@@ -262,10 +262,10 @@ class sqlite {
     }
     static public
     void shema( SQLiteDatabase db) {
-        ArrayList< String> tablenames = new ArrayList< String>();
+        ArrayList< String> tablenames = new ArrayList();
         shema_tables( db, tablenames);
         for (String tname : tablenames) {
-            HashMap< String,String> colnametypes = new HashMap< String,String>();
+            HashMap< String,String> colnametypes = new HashMap();
             shema_columns( db, tname, colnametypes);
             Log.d( "SHEEEma: "+ tname + ": " + colnametypes);
         }
@@ -375,7 +375,7 @@ static int[] _sql2weekday = {
     Calendar.SATURDAY,
     Calendar.SUNDAY,
 };
-static HashMap< Integer, Integer> _weekday2sql = new HashMap< Integer, Integer>();
+static HashMap< Integer, Integer> _weekday2sql = new HashMap();
 static {
     for (int i=_sql2weekday.length; --i>=0; )
         _weekday2sql.put( _sql2weekday[i], i );
@@ -396,7 +396,7 @@ Bitmap sql2Bitmap( int i, Cursor c) {
 /*
 static
 ArrayList< String> export_table( SQLiteDatabase db, String tablename, ArrayList< String> rows) {
-    if (rows==null) rows = new ArrayList< String>();
+    if (rows==null) rows = new ArrayList();
     //Cursor c = db.rawQuery( ".dump "+tablename, null);
     Cursor c = query( db, tablename, null, null, null);
     DatabaseUtils.dumpCursor( c);
@@ -448,7 +448,7 @@ class DBhelper extends SQLiteOpenHelper {
             db.execSQL( "create table if not exists " + b.tablename() + " ( "+ b.creation() + " )" );
             if (true) {
                 String tname = b.tablename();
-                HashMap< String,String> colnametypes = new HashMap< String,String>();
+                HashMap< String,String> colnametypes = new HashMap();
                 shema_columns( db, tname, colnametypes);
                 //Log.d( "SHEEEma: "+ tname + ": " + colnametypes);
                 for (int i= funk.len( b.coltypes()); --i>=0; ) {

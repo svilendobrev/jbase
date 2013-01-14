@@ -12,7 +12,6 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import java.util.HashMap;
-import java.util.ArrayList;
 
 public
 class MenuDescr {
@@ -72,7 +71,7 @@ interface DynamicTitle{
 
 
 
-    public HashMap< Integer, D> descr = new HashMap< Integer, D>();
+    public HashMap< Integer, D> descr = new HashMap();
     public int resId;
     public Integer titleId;
     public String title;

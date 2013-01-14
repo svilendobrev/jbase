@@ -8,21 +8,20 @@ import com.svilendobrev.pref.Prefs;
 
 import android.content.Context;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class AppData {
 
     public interface DataLoader {
-        public ArrayList<Model> loadData();
+        public Model.Collection loadData();
     }
 
     abstract public static class DataCache {
         boolean _dirty = true;
-        protected ArrayList<Model> data;
+        protected Model.Collection data;
 
         //public DataCache() {}
-        public ArrayList<Model> getData( DataLoader loader) {
+        public Model.Collection getData( DataLoader loader) {
             if (_dirty) {
                 data = loader!=null ? loader.loadData() : loadData();
                 _clearmap();
@@ -32,7 +31,7 @@ public abstract class AppData {
             }
             return data;
         }
-        public ArrayList<Model> getData() { return getData(null); }
+        public Model.Collection getData() { return getData(null); }
 
         public void update_now() {
             invalidate();
@@ -60,7 +59,7 @@ public abstract class AppData {
         abstract public Model getById( long id);
         abstract public Model getById( String key);
 
-        protected ArrayList<Model> loadData() { return null; } //either redefine this or use a DataLoader
+        protected Model.Collection loadData() { return null; } //either redefine this or use a DataLoader
     }
 
     public static class DataCacheInt extends DataCache {
@@ -73,7 +72,7 @@ public abstract class AppData {
         @Override public Model getById( String key) { funk.fail("only integer keys supported"); return null; }
     }
     public static class DataCacheStr extends DataCache {
-        private HashMap< String, Model> map = new HashMap< String, Model>();
+        private HashMap< String, Model> map = new HashMap();
 
         @Override protected void _clearmap() { map.clear(); }
         @Override protected void _add2map( Model m) { map.put( m.getKey(), m); }

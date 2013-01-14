@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.LinearLayout;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class dnd {
@@ -97,7 +96,7 @@ class DragCtl implements View.OnTouchListener, View.OnLongClickListener {
 
     public  DragBoundary boundary;
 
-    private HashMap<View,View> handler2item = new HashMap<View,View>();
+    private HashMap<View,View> handler2item = new HashMap();
 
     private static enum Ops { ENTER, LEAVE, MOVE, DROP };
 
@@ -309,7 +308,7 @@ class DragCtl implements View.OnTouchListener, View.OnLongClickListener {
         return true;
     }
 
-    private HashMap<View, DropCtl> targets = new HashMap<View, DropCtl>();
+    private HashMap<View, DropCtl> targets = new HashMap();
 
     protected DropCtl point2ctl( int x, int y) {
         Rect r = tmpRect;

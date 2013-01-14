@@ -66,7 +66,7 @@ public abstract class Flow<A extends ActivityBase> {
         return this;
     }
     public HashMap<String, String> parse_transitions( String description) {
-        HashMap<String, String> res = new HashMap<String, String>();
+        HashMap<String, String> res = new HashMap();
         ArrayList<String> words = funk.split( description);
         for (String w : words) {
             ArrayList<String> events_dest = funk.split_skip_empties(w, ":");
@@ -333,12 +333,12 @@ class State {
         return name + " " +flow+ " "+ meth;
     }
     public State onEnter( Runnable r) {
-        if (run_on_enter == null) run_on_enter = new ArrayList<Runnable>();
+        if (run_on_enter == null) run_on_enter = new ArrayList();
         run_on_enter.add( r);
         return this;
     }
     public State onExit( Runnable r) {
-        if (run_on_exit == null) run_on_exit = new ArrayList<Runnable>();
+        if (run_on_exit == null) run_on_exit = new ArrayList();
         run_on_exit.add( r);
         return this;
     }

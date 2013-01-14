@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class BaseSAXHandler extends DefaultHandler {
 
-    public ArrayList< Model> many = new ArrayList< Model>();
+    public Model.Collection many = Model.newCollection();
     public Model one = null;
 
     protected void _set_item( Model m) {
@@ -49,11 +49,11 @@ public class BaseSAXHandler extends DefaultHandler {
     }
 
     public String path;
-    ArrayList< HashMap< String, String>> _lastattrs = new ArrayList< HashMap< String, String>>();
+    ArrayList< HashMap< String, String>> _lastattrs = new ArrayList();
     public
     HashMap< String, String> lastattrs() { return _lastattrs.get( _lastattrs.size() -1 ); }
 
-    public HashMap< String, HashMap< String, String>> uniqattrs = new HashMap< String, HashMap< String, String>>();
+    public HashMap< String, HashMap< String, String>> uniqattrs = new HashMap();
 
     @Override
     public void characters( char[] ch, int start, int length) {
@@ -63,7 +63,7 @@ public class BaseSAXHandler extends DefaultHandler {
     public void startElement( String namespace, String name, String qualName, Attributes attrs) throws SAXException {
         _buffer = "";
         path += "/" + name;
-        HashMap< String, String> m = new HashMap< String, String>();
+        HashMap< String, String> m = new HashMap();
         for (int i= attrs.getLength(); i-->0; )
             m.put( attrs.getLocalName( i), attrs.getValue( i) );
         _lastattrs.add( m);

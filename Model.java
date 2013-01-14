@@ -2,6 +2,7 @@ package com.svilendobrev.jbase;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public abstract class Model implements Serializable {
 
@@ -17,13 +18,13 @@ public abstract class Model implements Serializable {
             super.toString();
     }
 
-    static public interface Collection extends java.util.List<Model> {};
-    static public class _List extends ArrayList<Model> implements Collection {
+    static public interface Many extends Collection<Model> {};
+    static public class _List extends ArrayList<Model> implements Many {
         public _List() { super(); }
-        public _List( java.util.Collection c) { super(c); }
+        public _List( Collection c) { super(c); }
     };
-    static public Collection newCollection() { return new _List(); }
-    static public Collection newCollection( java.util.Collection c) { return new _List( c); }
+    static public Many newCollection() { return new _List(); }
+    static public Many newCollection( Collection c) { return new _List( c); }
 }
 
 

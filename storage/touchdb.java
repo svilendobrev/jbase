@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Collection;
 import java.util.Iterator;
 
 
@@ -448,6 +449,14 @@ class touchdb {
 
         @Override
         public int hashCode()   { String id = getId(); return id==null ? 0 : id.hashCode(); }
+
+        static public interface Many extends Collection<Model> {};
+        static public class _List extends ArrayList<Model> implements Many {
+            public _List() { super(); }
+            public _List( Collection c) { super(c); }
+        };
+        static public Many newCollection() { return new _List(); }
+        static public Many newCollection( Collection c) { return new _List( c); }
     }
 
     static protected
@@ -464,16 +473,16 @@ class touchdb {
         public abstract ObjectNode save( Model source, JsonNode result); //ret result
         public Model load( JsonNode c) { return load( null, c); }
 
-        public Model.Collection
-        load_as_Models( ViewResult vr, Model.Collection r, Boolean use_value ) {
+        public Model.Many
+        load_as_Models( ViewResult vr, Model.Many r, Boolean use_value ) {
             if (r==null) r = Model.newCollection();
             for (ViewResult.Row x: vr.getRows())
                 r.add( load( row2doc( x, use_value) ));
             return r;
         }
-        public Model.Collection load_as_Models( ViewResult vr, Model.Collection r)  { return load_as_Models( vr, r, null); }
-        public Model.Collection load_as_Models( ViewResult vr, boolean use_value)   { return load_as_Models( vr, null, use_value ); }
-        public Model.Collection load_as_Models( ViewResult vr)                      { return load_as_Models( vr, null, null); }
+        public Model.Many load_as_Models( ViewResult vr, Model.Many r)  { return load_as_Models( vr, r, null); }
+        public Model.Many load_as_Models( ViewResult vr, boolean use_value)   { return load_as_Models( vr, null, use_value ); }
+        public Model.Many load_as_Models( ViewResult vr)                      { return load_as_Models( vr, null, null); }
 
         public <T extends Model> List< T>
         load_org( ViewResult vr, List< T> r, Boolean use_value) {

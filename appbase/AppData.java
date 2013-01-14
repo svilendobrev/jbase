@@ -13,15 +13,15 @@ import java.util.HashMap;
 public abstract class AppData {
 
     public interface DataLoader {
-        public Model.Collection loadData();
+        public Model.Many loadData();
     }
 
     abstract public static class DataCache {
         boolean _dirty = true;
-        protected Model.Collection data;
+        protected Model.Many data;
 
         //public DataCache() {}
-        public Model.Collection getData( DataLoader loader) {
+        public Model.Many getData( DataLoader loader) {
             if (_dirty) {
                 data = loader!=null ? loader.loadData() : loadData();
                 _clearmap();
@@ -31,7 +31,7 @@ public abstract class AppData {
             }
             return data;
         }
-        public Model.Collection getData() { return getData(null); }
+        public Model.Many getData() { return getData(null); }
 
         public void update_now() {
             invalidate();
@@ -49,7 +49,7 @@ public abstract class AppData {
             _add2map( m);
         }
         public void remove( Model m) {
-            data.remove( data.indexOf( m));
+            data.remove( m);
             _del2map(m);
         }
 
@@ -59,7 +59,7 @@ public abstract class AppData {
         abstract public Model getById( long id);
         abstract public Model getById( String key);
 
-        protected Model.Collection loadData() { return null; } //either redefine this or use a DataLoader
+        protected Model.Many loadData() { return null; } //either redefine this or use a DataLoader
     }
 
     public static class DataCacheInt extends DataCache {

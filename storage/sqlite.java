@@ -187,13 +187,13 @@ class sqlite {
     public void getAll( Class klas, Collection<Model> result, String where, String orderBy) { getAll( klas, result, where, orderBy, null); }
     public void getAll( Class klas, Collection<Model> result) { getAll( klas, result, null, null, null); }
 
-    public Model.Collection getAll( Class klas, String where, String orderBy, String limit) {
-        Model.Collection result = Model.newCollection();
+    public Model.Many getAll( Class klas, String where, String orderBy, String limit) {
+        Model.Many result = Model.newCollection();
         getAll( klas, result, where, orderBy, limit);
         return result;
     }
-    public Model.Collection getAll( Class klas, String where, String orderBy) { return getAll( klas, where, orderBy, null); }
-    public Model.Collection getAll( Class klas) { return getAll( klas, null, null); }
+    public Model.Many getAll( Class klas, String where, String orderBy) { return getAll( klas, where, orderBy, null); }
+    public Model.Many getAll( Class klas) { return getAll( klas, null, null); }
 
 /*
     public void getAll( Class klas, Map<Integer,Model> result, String where, String orderBy) {
@@ -203,7 +203,7 @@ class sqlite {
 */
 /*
     public Model get1st( Class klas, String where) {
-        Model.Collection result = getAll( klas, where, null, "1");
+        Model.Many result = getAll( klas, where, null, "1");
         return funk.not(result) ? null : result.get(0);
     }
     public Model get1st( Model some4key) {

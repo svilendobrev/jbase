@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class BaseSAXHandler extends DefaultHandler {
 
-    public Model.Collection many = Model.newCollection();
+    public Model.Many many = Model.newCollection();
     public Model one = null;
 
     protected void _set_item( Model m) {

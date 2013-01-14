@@ -18,7 +18,7 @@ public abstract class Model implements Serializable {
             super.toString();
     }
 
-    static public interface Many extends Collection<Model> {};
+    static public interface Many extends List<Model> {};
     static public class _List extends ArrayList<Model> implements Many {
         public _List() { super(); }
         public _List( Collection c) { super(c); }

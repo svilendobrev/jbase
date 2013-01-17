@@ -344,29 +344,64 @@ class touchdb {
         }
     }
     static public abstract class AsyncTask4dbitem extends AsyncTask4db {
-        JsonNode item;
+        Object _item;
         String op;
-        public AsyncTask4dbitem( JsonNode item, String op) { this.item = item; this.op = op; }
+        public AsyncTask4dbitem( Object item, String op) { this._item = item; this.op = op; }
         @Override protected void onSuccess() { Log.d( TAG, "Document " + op + " ok"); }
         @Override protected void onUpdateConflict( UpdateConflictException updateConflictException) {
-            Log.d( TAG, "conflict " + op + ": " + item.toString());
+            Log.i( TAG, "conflict " + op + ": " + _item.toString());
         }
     }
 
-    public void create( final String dbname, final JsonNode item) {
-        (new AsyncTask4dbitem( item, "create" ) {
-            @Override protected void doInBackground() { databases.get( dbname).create( item); }
-        }).execute();
+    //id/rev goes into item
+    public void _create( String dbname, JsonNode item) { databases.get( dbname).create( item); }
+    public void _update( String dbname, JsonNode item) { databases.get( dbname).update( item); }
+    //return rev
+    public String _delete( String dbname, JsonNode item) { return databases.get( dbname).delete( item); }
+
+    public void _create( String dbname, Model x) {
+        Base b = modelklas2db.get( x.getClass() );
+        ObjectNode o = b.save( x, null);
+        _create( dbname, o);
+        b.load( x, o);  //replace id/rev/whatever
     }
-    public void update( final String dbname, final JsonNode item) {
-        (new AsyncTask4dbitem( item, "update") {
-            @Override protected void doInBackground() { databases.get( dbname).update( item); }
-        }).execute();
+    public void _update( String dbname, Model x) {
+        Base b = modelklas2db.get( x.getClass() );
+        ObjectNode o = b.save( x, null);
+        _update( dbname, o);
+        b.load( x, o);  //replace id/rev/whatever
     }
-    public void delete( final String dbname, final JsonNode item) {
-        (new AsyncTask4dbitem( item, "delete") {
-            @Override protected void doInBackground() { databases.get( dbname).delete( item); }
-        }).execute();
+    public void _delete( String dbname, Model x) {
+        Base b = modelklas2db.get( x.getClass() );
+        ObjectNode o = b.save( x, null);
+        String rev = _delete( dbname, o);
+        o.put( "_rev", rev);
+        b.load( x, o);  //replace id/rev/whatever
+    }
+
+    public void create( final String dbname, final Model item, boolean async ) {
+        if (!async)
+            _create( dbname, item);
+        else
+        (new AsyncTask4dbitem( item, "create" ) { @Override protected void doInBackground() {
+            _create( dbname, item);
+        }}).execute();
+    }
+    public void update( final String dbname, final Model item, boolean async ) {
+        if (!async)
+            _update( dbname, item);
+        else
+        (new AsyncTask4dbitem( item, "update") { @Override protected void doInBackground() {
+            _update( dbname, item);
+        }}).execute();
+    }
+    public void delete( final String dbname, final Model item, boolean async ) {
+        if (!async)
+            _delete( dbname, item);
+        else
+        (new AsyncTask4dbitem( item, "delete") { @Override protected void doInBackground() {
+            _delete( dbname, item);
+        }}).execute();
     }
 
     /////////// data i/o conversion
@@ -457,6 +492,7 @@ class touchdb {
         };
         static public Many newCollection() { return new _List(); }
         static public Many newCollection( Collection c) { return new _List( c); }
+
     }
 
     static protected
@@ -502,18 +538,9 @@ class touchdb {
         public <T extends Model> List< T> load_org( ViewResult vr)                      { return load_org_guess( vr); }
     }
 
-    public void insert( Model x, String dbname ) {
-        Base b = modelklas2db.get( x.getClass() );
-        create( dbname, b.save( x, null));
-    }
-    public void update( Model x, String dbname ) {
-        Base b = modelklas2db.get( x.getClass() );
-        update( dbname, b.save( x, null));
-    }
-    public void delete( Model x, String dbname ) {
-        Base b = modelklas2db.get( x.getClass() );
-        delete( dbname, b.save( x, null));
-    }
+    public void insert( Model x, String dbname, boolean async ) { create( dbname, x, async); }
+    public void update( Model x, String dbname, boolean async ) { update( dbname, x, async); }
+    public void delete( Model x, String dbname, boolean async ) { delete( dbname, x, async); }
 
 
     ////////// app specific XXX - inherit then whatever /////////

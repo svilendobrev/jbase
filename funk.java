@@ -66,13 +66,13 @@ static public     int len( float[] x)       { return x.length; }
 static public <T>  T defaults( T x, T defaults)   { return x != null ? x : defaults; }
 
 
-static public <T>  T get( ArrayList<T> x, int i, T defaults) {
+static public <T>  T get( List<T> x, int i, T defaults) {
     if (not(x)) return defaults;
     if (i<0) i+= len(x);
     if (i<0 || i>= len(x)) return defaults;
     return x.get(i);
 }
-static public <T>  T pop( ArrayList<T> x, int i, T defaults) {
+static public <T>  T pop( List<T> x, int i, T defaults) {
     if (not(x)) return defaults;
     if (i<0) i+= len(x);
     if (i<0 || i>= len(x)) return defaults;
@@ -81,13 +81,13 @@ static public <T>  T pop( ArrayList<T> x, int i, T defaults) {
     return a;
 }
 
-static public <T>  T last( ArrayList<T> x, T defaults) {
+static public <T>  T last( List<T> x, T defaults) {
     if (not(x)) return defaults;
     return x.get( len(x)-1);
 }
-static public <T>  T get( ArrayList<T> x, int i) { return get( x,i,null); }
-static public <T>  T pop( ArrayList<T> x, int i) { return pop( x,i,null); }
-static public <T>  T last( ArrayList<T> x) { return last( x, null); }
+static public <T>  T get( List<T> x, int i) { return get( x,i,null); }
+static public <T>  T pop( List<T> x, int i) { return pop( x,i,null); }
+static public <T>  T last( List<T> x) { return last( x, null); }
 
 static public <K,V>  V setdefault( Map<K,V> m, K key, V vdef) {
     V v = m.get( key);

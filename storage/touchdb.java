@@ -290,6 +290,19 @@ class touchdb {
     ObjectNode jsonObject() { return JsonNodeFactory.instance.objectNode(); }
     static public
     ArrayNode  jsonArray()  { return JsonNodeFactory.instance.arrayNode(); }
+
+    static public Collection< String>
+    query_only_id( ViewResult vr, Collection< String> r) {
+        if (r==null) r = new ArrayList();
+        for (ViewResult.Row x: vr.getRows())
+            r.add( x.getId() );
+        return r;
+    }
+    static public Collection< String>
+    query_only_id( ViewResult vr) { return query_only_id( vr, null); }
+    public Collection< String>
+    query_only_id( ViewQuery q, String dbname, Collection< String> r) { return query_only_id( query_raw( dbname, q), r); }
+
 /*
     public
     CouchbaseViewListAdapter makeAdapter( String dbname, ViewQuery viewQuery) {

@@ -251,7 +251,7 @@ class touchdb {
         return query2( r[0], r[1]);
     }
     static public ViewQuery
-    query_alldocs() { return new ViewQuery().allDocs(); }
+    query_alldocs( boolean includeDocs) { return new ViewQuery().allDocs().includeDocs( includeDocs); }
 
     public ViewResult
     query_raw( String dbname, ViewQuery query ) {

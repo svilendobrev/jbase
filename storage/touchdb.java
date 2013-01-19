@@ -367,10 +367,10 @@ class touchdb {
     }
 
     //id/rev goes into item
-    public void _create( String dbname, JsonNode item) { databases.get( dbname).create( item); }
-    public void _update( String dbname, JsonNode item) { databases.get( dbname).update( item); }
+    public void _create( String dbname, ObjectNode item) { databases.get( dbname).create( item); }
+    public void _update( String dbname, ObjectNode item) { databases.get( dbname).update( item); }
     //return rev
-    public String _delete( String dbname, JsonNode item) { return databases.get( dbname).delete( item); }
+    public String _delete( String dbname, ObjectNode item) { return databases.get( dbname).delete( item); }
 
     public void _create( String dbname, Model x) {
         Base b = modelklas2db.get( x.getClass() );

@@ -349,6 +349,9 @@ class touchdb {
         return l;
     }
 
+    //XXX funk.first_non_null( Object... values)  used for a || b || c in genViews
+
+
     ////////
 
     static public abstract class AsyncTask4db extends EktorpAsyncTask {

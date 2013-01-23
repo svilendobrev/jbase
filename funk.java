@@ -66,6 +66,12 @@ static public     int len( float[] x)       { return x.length; }
 static public <T>  T defaults( T x, T defaults)   { return x != null ? x : defaults; }
 static public String defaults_any( String x, String defaults)   { return any(x) ? x : defaults; }
 
+static public Object first_non_null( Object... values) {
+    for (Object o: values)
+        if (o != null) return o;
+    return null;
+}
+
 
 static public <T>  T get( List<T> x, int i, T defaults) {
     if (not(x)) return defaults;

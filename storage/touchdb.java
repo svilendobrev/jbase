@@ -170,10 +170,12 @@ class touchdb {
     void installViewDefinitions();     //XXX do override
         //Log.e( TAG, "call genViews4Touchdb.views", server, "version", dbname2open );
 
+    public
     static String _DEFAULT_dburl = "";
     public
     String DEFAULT_dburl() { return _DEFAULT_dburl; }    //XXX do override
 
+    public
     static String _SYNC_URL_pref = "sync_url";
     public
     String SYNC_URL() {                     //XXX override if needed

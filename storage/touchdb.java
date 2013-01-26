@@ -52,7 +52,7 @@ import com.couchbase.touchdb.router.TDURLStreamHandlerFactory;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.content.ContextWrapper;
+import android.content.Context;
 
 import java.io.IOException;
 import java.util.Map;
@@ -164,7 +164,7 @@ class touchdb {
     }
 
     protected abstract
-    ContextWrapper ctx(); // { return null; }   //XXX do override
+    Context ctx(); // { return null; }   //XXX do override
 
     public abstract
     void installViewDefinitions();     //XXX do override
@@ -177,7 +177,7 @@ class touchdb {
     static String _SYNC_URL_pref = "sync_url";
     public
     String SYNC_URL() {                     //XXX override if needed
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences( ctx().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences( ctx());
         return prefs.getString( _SYNC_URL_pref, DEFAULT_dburl() );
     }
 

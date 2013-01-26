@@ -1,7 +1,7 @@
 package com.svilendobrev.appbase;
 
 import com.svilendobrev.jbase.Log;
-import com.svilendobrev.jbase.Error;
+//import com.svilendobrev.jbase.Error;
 import com.svilendobrev.pref.Prefs;
 
 import android.content.Context;

@@ -55,6 +55,7 @@ PACK=$(wildcard bin/*$(REL).apk)
 SYMLINKER = PATH=..:$$PATH PYTHONPATH=../py:../../py symlinker.py
 SRC_EXCLUDE =
 
+NODEPS=1
 build:
 	perl -ne 's/(android:versionName=)".*?"/\1"$(VER)"/;s/(android:versionCode=)".*?"/\1"$(VERi)"/;print' myAndroidManifest.xml > AndroidManifest.xml
 	rm -rf src_
@@ -62,7 +63,7 @@ build:
 	#cp -rl src src_; find -L src_ -not -name \*.java -a -not -type d -a -exec rm {} \;
 	$(SYMLINKER) --op=link --inc='*.java' src src_
 	cd src_; rm -f $(SRC_EXCLUDE)
-	ant $(REL)
+	ant $(if $(NODEPS),nodeps) $(REL)
 
 install: build
 	$(MAKE) inst

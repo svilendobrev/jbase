@@ -24,8 +24,6 @@ static public boolean not( String x)        { return x == null || x.length()==0;
 static public boolean not( StringBuilder x) { return x == null || x.length()==0; }
 static public boolean not( Collection x)    { return x == null || x.isEmpty(); }
 static public boolean not( Map x)           { return x == null || x.isEmpty(); }
-static public boolean not( Integer x)       { return x == null || x == 0; }
-static public boolean not( Long x)          { return x == null || x == 0; }
 static public <T> boolean not( T[] x)       { return x == null || x.length==0; } //references
 static public boolean not( int[] x)         { return x == null || x.length==0; } //primitives
 static public boolean not( long[] x)        { return x == null || x.length==0; }
@@ -36,6 +34,11 @@ static public boolean not( long x)          { return x == 0; }
 static public boolean not( float x)         { return x == 0; }
 static public boolean not( boolean x)       { return !x; }
 static public boolean not( Date x)          { return x == null; }
+static public boolean not( Boolean x)       { return x == null || !x; }
+static public boolean not( Integer x)       { return x == null || x == 0; }
+static public boolean not( Long    x)       { return x == null || x == 0; }
+static public boolean not( Float   x)       { return x == null || x == 0; }
+static public boolean not( Double  x)       { return x == null || x == 0; }
 
 static public boolean any( String x)        { return x != null && x.length()>0; }
 static public boolean any( StringBuilder x) { return x != null && x.length()>0; }
@@ -52,6 +55,10 @@ static public boolean any( float x)         { return x != 0; }
 static public boolean any( boolean x)       { return x; }
 static public boolean any( Date x)          { return x != null; }
 static public boolean any( Boolean x)       { return x != null && x; }
+static public boolean any( Integer x)       { return x != null && x != 0; }
+static public boolean any( Long    x)       { return x != null && x != 0; }
+static public boolean any( Float   x)       { return x != null && x != 0; }
+static public boolean any( Double  x)       { return x != null && x != 0; }
 
 static public     int len( String x)        { return x.length(); }
 static public     int len( StringBuilder x) { return x.length(); }

@@ -1,10 +1,16 @@
+# no-nonsense android build system
+# svd 2010-
+#
 #initial:
+#
+#fix ant.properties - source=src_ and package=..
+#
 #$ make
 # >will make AndroidManifest.xml from myAndroidManifest.xml then die
 #
 #$ export ANDROID=/whereever/android-sdk-linux_86
 #$ make target T=10
-# or # make target TARGET=fullosname
+# or # make target TARGET=fullplatformname
 # >will fix local.properties / project.properties
 #
 #$ fix by hand the local.properties / project-properties in all dependencies
@@ -15,16 +21,20 @@
 #run emulator
 #$ make emu AVD=youravdimage DNS=yourdns
 #
+# ??? build.xml is autocreated
+#
 #$ make
 #or
-# $ make inst      -for only copying to emu
+# $ make inst   -for only copying to emu
 # $ make phone 	-for only copying to phone
 #
 #build copies only .java stuff from src/ into src_/, converting symlinks into hardlinks
 #and embeds bzr-version into AndroidManifest.xml - original should be myAndroidManifest.xml
 #needs symlinker.py from svd_util
 
+#as in local.properties
 ANDROID?=/home/android-sdk-linux_86
+
 ifeq (,$(find $(ANDROID)/tools,$(PATH)))
 export PATH:=$(ANDROID)/tools:$(PATH)
 endif

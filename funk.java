@@ -103,9 +103,9 @@ static public <T>  T get( List<T> x, int i) { return get( x,i,null); }
 static public <T>  T pop( List<T> x, int i) { return pop( x,i,null); }
 static public <T>  T last( List<T> x) { return last( x, null); }
 
-static public <K,V>  V setdefault( Map<K,V> m, K key, V vdef) {
+static public <K,V>  V setdefault( Map<K,V> m, K key, V vdefault) {
     V v = m.get( key);
-    if (v==null) { v = vdef; m.put( key, v); }
+    if (v==null) { v = vdefault; m.put( key, v); }
     return v;
 }
 /* doesnt work... Set<String>.class can be faked as Set.class then casted but then newInstance fails..
@@ -120,6 +120,13 @@ static public <K,V>  V setdefault( Map<K,V> m, K key, Class vdef) {
     return v;
 }
 */
+static public <K,V>  V get( Map<K,V> m, K key, V vdefault) {
+    if (not(m)) return vdefault;
+    V v = m.get( key);
+    if (v==null) return vdefault;
+    return v;
+}
+
 
 static public
 void split( String input, String regex, Collection< String> r, boolean skip_empties) {

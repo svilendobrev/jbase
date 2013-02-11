@@ -371,56 +371,71 @@ class touchdb {
         }
     }
 
-    //id/rev goes into item
-    public void _create( String dbname, ObjectNode item) { databases.get( dbname).create( item); }
-    public void _update( String dbname, ObjectNode item) { databases.get( dbname).update( item); }
+    //id/rev goes into item + return rev
+    public String _create( String dbname, ObjectNode item) { databases.get( dbname).create( item); return db2string( item.get( "_rev")); }
+    public String _update( String dbname, ObjectNode item) { databases.get( dbname).update( item); return db2string( item.get( "_rev")); }
     //return rev
     public String _delete( String dbname, ObjectNode item) { return databases.get( dbname).delete( item); }
 
-    public void _create( String dbname, Model x) {
+    //return rev
+    public String _op( String dbname, ObjectNode item, String op) {
+        if ("create".equals( op)) return _create( dbname, item);
+        if ("update".equals( op)) return _update( dbname, item);
+        if ("delete".equals( op)) return _delete( dbname, item);
+        funk.fail( "unknown op "+op);
+        return null;
+    }
+
+    public String _create( String dbname, Model x) {
         Base b = modelklas2db.get( x.getClass() );
         ObjectNode o = b.save( x, null);
-        _create( dbname, o);
+        String rev = _create( dbname, o);
         b.load( x, o);  //replace id/rev/whatever
+        return rev;
     }
-    public void _update( String dbname, Model x) {
+    public String _update( String dbname, Model x) {
         Base b = modelklas2db.get( x.getClass() );
         ObjectNode o = b.save( x, null);
-        _update( dbname, o);
+        String rev = _update( dbname, o);
         b.load( x, o);  //replace id/rev/whatever
+        return rev;
     }
-    public void _delete( String dbname, Model x) {
+    public String _delete( String dbname, Model x) {
         Base b = modelklas2db.get( x.getClass() );
         ObjectNode o = b.save( x, null);
         String rev = _delete( dbname, o);
         o.put( "_rev", rev);
         b.load( x, o);  //replace id/rev/whatever
+        return rev;
+    }
+    public String _op( String dbname, Model item, String op) {
+        if ("create".equals( op)) return _create( dbname, item);
+        if ("update".equals( op)) return _update( dbname, item);
+        if ("delete".equals( op)) return _delete( dbname, item);
+        funk.fail( "unknown op "+op);
+        return null;
     }
 
-    public void create( final String dbname, final Model item, boolean async ) {
+
+    public String _op( String dbname, Object x, String op) {
+        if (x instanceof Model)      return _op( dbname, (Model)x, op);
+        if (x instanceof ObjectNode) return _op( dbname, (ObjectNode)x, op);
+        funk.fail( "unknown type "+x);
+        return null;
+    }
+
+    public void _op( final String dbname, final Object item, boolean async, final String op) {
         if (!async)
-            _create( dbname, item);
+            _op( dbname, item, op);
         else
-        (new AsyncTask4dbitem( item, "create" ) { @Override protected void doInBackground() {
-            _create( dbname, item);
+        (new AsyncTask4dbitem( item, op ) { @Override protected void doInBackground() {
+            _op( dbname, item, op);
         }}).execute();
     }
-    public void update( final String dbname, final Model item, boolean async ) {
-        if (!async)
-            _update( dbname, item);
-        else
-        (new AsyncTask4dbitem( item, "update") { @Override protected void doInBackground() {
-            _update( dbname, item);
-        }}).execute();
-    }
-    public void delete( final String dbname, final Model item, boolean async ) {
-        if (!async)
-            _delete( dbname, item);
-        else
-        (new AsyncTask4dbitem( item, "delete") { @Override protected void doInBackground() {
-            _delete( dbname, item);
-        }}).execute();
-    }
+
+    public void create( final String dbname, Object item, boolean async ) { _op( dbname, item, async, "create" ); }
+    public void update( final String dbname, Object item, boolean async ) { _op( dbname, item, async, "update" ); }
+    public void delete( final String dbname, Object item, boolean async ) { _op( dbname, item, async, "delete" ); }
 
     /////////// data i/o conversion
 
@@ -556,9 +571,9 @@ class touchdb {
         public <T extends Model> List< T> load_org( ViewResult vr)                      { return load_org_guess( vr); }
     }
 
-    public void insert( Model x, String dbname, boolean async ) { create( dbname, x, async); }
-    public void update( Model x, String dbname, boolean async ) { update( dbname, x, async); }
-    public void delete( Model x, String dbname, boolean async ) { delete( dbname, x, async); }
+    //public void insert( Model x, String dbname, boolean async ) { create( dbname, x, async); }
+    //public void update( Model x, String dbname, boolean async ) { update( dbname, x, async); }
+    //public void delete( Model x, String dbname, boolean async ) { delete( dbname, x, async); }
 
 
     ////////// app specific XXX - inherit then whatever /////////

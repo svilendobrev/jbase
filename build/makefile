@@ -62,7 +62,8 @@ REL = debug
 PACK=$(wildcard bin/*$(REL).apk)
 #PACK=bin/$(APPNAME)-debug.apk
 
-SYMLINKER = PATH=..:$$PATH PYTHONPATH=../py:../../py symlinker.py
+#SYMLINKER = PATH=..:$$PATH PYTHONPATH=../py:../../py symlinker.py
+SYMLINKER = PYTHONPATH=. symlinker.py
 SRC_EXCLUDE =
 
 NODEPS=1

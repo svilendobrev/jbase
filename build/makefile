@@ -59,8 +59,8 @@ VER = beta-r$(VERi)
 
 REL = debug
 
-PACK=$(wildcard bin/*$(REL).apk)
-#PACK=bin/$(APPNAME)-debug.apk
+#PACK=$(wildcard bin/*$(REL).apk)
+PACK=bin/$(APPNAME)-$(REL).apk
 
 #SYMLINKER = PATH=..:$$PATH PYTHONPATH=../py:../../py symlinker.py
 SYMLINKER = PYTHONPATH=. symlinker.py
@@ -69,9 +69,11 @@ SRC ?= src
 SRC_?= src_
 
 MYMANIFEST= myAndroidManifest.xml
+MYBUILD= mybuild.xml
 mymanifest: _manifest
 _manifest:
-	-test -f $(MYMANIFEST) && perl -ne 's/(android:versionName=)".*?"/\1"$(VER)"/;s/(android:versionCode=)".*?"/\1"$(VERi)"/;print' $(MYMANIFEST) > AndroidManifest.xml
+	-test -f $(MYMANIFEST) && perl -ne 's/(android:versionName=)".*?"/\1"$(VER)"/; s/(android:versionCode=)".*?"/\1"$(VERi)"/; s/(package=)".*?"/\1"$(APP)"/; print' $(MYMANIFEST) > AndroidManifest.xml
+	-test -f $(MYBUILD) && perl -ne 's/(<project name=)".*?"/\1"$(APPNAME)"/; print' $(MYBUILD) > build.xml
 
 NODEPS=1
 build: mymanifest

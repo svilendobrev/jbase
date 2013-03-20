@@ -68,15 +68,19 @@ SRC_EXCLUDE ?=
 SRC ?= src
 SRC_?= src_
 
+MYMANIFEST= myAndroidManifest.xml
+mymanifest: _manifest
+_manifest:
+	-test -f $(MYMANIFEST) && perl -ne 's/(android:versionName=)".*?"/\1"$(VER)"/;s/(android:versionCode=)".*?"/\1"$(VERi)"/;print' $(MYMANIFEST) > AndroidManifest.xml
+
 NODEPS=1
-build:
-	-test -f myAndroidManifest.xml && perl -ne 's/(android:versionName=)".*?"/\1"$(VER)"/;s/(android:versionCode=)".*?"/\1"$(VERi)"/;print' myAndroidManifest.xml > AndroidManifest.xml
+build: mymanifest
 	rm -rf src_
 	#cd src; for a in `find -L ./ -name \*.java -exec dirname {} \; | sort | uniq`; do  mkdir -p ../src_/$$a; ln $$a/*.java ../src_/$$a; done
 	#cp -rl src src_; find -L src_ -not -name \*.java -a -not -type d -a -exec rm {} \;
 	-$(SYMLINKER) --op=link --inc='*.java' $(SRC_EXCLUDE:%=--exc='%') $(SRC) $(SRC_)
 	#cd src_; rm -f $(SRC_EXCLUDE)
-	ant $(if $(NODEPS),nodeps) $(REL)
+	ant $(ANTFLAGS) $(if $(NODEPS),nodeps) $(REL)
 
 install: build
 	$(MAKE) inst
@@ -136,7 +140,7 @@ EXCTAG ?= $(SRC_)
 .PHONY: tags
 tag tags:  plaintags
 plaintags:
-	ctags -R $(CTAGSflags) $(EXCTAG:%=--exclude=%) $(SRCTAG)
+	ctags -R $(CTAGSFLAGS) $(EXCTAG:%=--exclude=%) $(SRCTAG)
 
 
 TARGET=android-$T

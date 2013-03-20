@@ -1,0 +1,13 @@
+#
+#include this after above the include ...jbase/build/makefile
+
+#SRCobjc += *iOS/ CouchCocoa/
+
+#builtin misses some syntaxes. and avoid any of it
+CTAGSflags = --langmap=matlab: --langmap=ObjectiveC: --langmap=C++:
+#and force the objc1 ONLY
+tag tags: iostags
+iostags: plaintags
+	ctags -a --options=objc1.ctags -R $(SRCobjc) --totals
+
+# vim:ts=4:sw=4:noexpandtab

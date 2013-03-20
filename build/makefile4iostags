@@ -1,13 +1,15 @@
 #
-#include this after above the include ...jbase/build/makefile
-
+#include this after the include ...jbase/build/makefile
+#and set this:
 #SRCobjc += *iOS/ CouchCocoa/
 
-#builtin misses some syntaxes. and avoid any of it
+
+#builtin misses some syntaxes. http://sourceforge.net/tracker/?func=detail&aid=3479904&group_id=6556&atid=106556
+#so avoid any of it, and force the objc1 ONLY
 CTAGSflags = --langmap=matlab: --langmap=ObjectiveC: --langmap=C++:
-#and force the objc1 ONLY
+_thismakefile = $(lastword $(MAKEFILE_LIST))
 tag tags: iostags
 iostags: plaintags
-	ctags -a --options=objc1.ctags -R $(SRCobjc) --totals
+	ctags -a --options=$(dir $(_thismakefile))objc1.ctags -R $(SRCobjc) --totals
 
 # vim:ts=4:sw=4:noexpandtab

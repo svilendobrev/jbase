@@ -20,6 +20,12 @@ import java.net.URL;
 import java.io.InputStream;
 import android.util.Log;
 
+import com.svilendobrev.appbase.MenuDescr;
+import android.view.MenuItem;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import java.util.HashMap;
+
 // Common ui functionalities
 public
 class Common {
@@ -172,6 +178,34 @@ class dlg {
     }
 } //dlg
 
+/////// contextMenus: see jbase/appbase/ActivityBase ; generic
+// make a static instance then override activity's onCreateContextMenu/onContextItemSelected
+static public
+class contextMenus {
+    public contextMenus() {}
+
+    protected HashMap< View, MenuDescr> _contextMenus = new HashMap();
+    protected View _currentContextView; //fragile?
+    //@Override
+    public void onCreateContextMenu( Activity activity, ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        _currentContextView = v;
+        MenuDescr d = _contextMenus.get( v);
+        //MenuInflater inflater =
+        activity.getMenuInflater().inflate( d.resId, menu);
+        d.update( menu, menuInfo);
+    }
+    //@Override
+    public boolean onContextItemSelected( Activity activity, MenuItem item) {
+        MenuDescr d = _contextMenus.get( _currentContextView);
+        d.start( activity, item);
+        return true;
+    }
+
+    public void setContextMenu( Activity activity, View v, MenuDescr m) {
+        activity.registerForContextMenu( v);
+        _contextMenus.put( v, m);
+    }
+} //contextMenus
 
 /////// misc
 static public

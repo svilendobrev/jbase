@@ -191,7 +191,7 @@ static public
 String[] toArray( Collection< String> x) { return (String[]) x.toArray( new String[0] ); }
 
 static public
-<T> void addAll( Collection<T> to, T[] from) { for (T x:from) to.add( x); }
+<T> void addAll( Collection<T> to, T[] from) { if (from != null) for (T x:from) to.add( x); }
 
 /*
 static public <T> T[] toArray( Collection<T> x) { return (T[]) x.toArray( new T[0] ); }
@@ -300,6 +300,10 @@ static public
     if (any(src)) dest.addAll(src);
 }
 */
+
+static public
+<T,S> boolean eq( Collection< T> a, Collection< S> b) { return a==null && b==null || a!=null && b!=null && a.equals(b); }
+
 
 static public
 void assertTrue( boolean expr) { Assert.assertTrue( expr); }

@@ -64,7 +64,9 @@ PACK=$(wildcard bin/*$(REL).apk)
 
 #SYMLINKER = PATH=..:$$PATH PYTHONPATH=../py:../../py symlinker.py
 SYMLINKER = PYTHONPATH=. symlinker.py
-SRC_EXCLUDE =
+SRC_EXCLUDE ?=
+SRC ?= src
+SRC_?= src_
 
 NODEPS=1
 build:
@@ -72,7 +74,7 @@ build:
 	rm -rf src_
 	#cd src; for a in `find -L ./ -name \*.java -exec dirname {} \; | sort | uniq`; do  mkdir -p ../src_/$$a; ln $$a/*.java ../src_/$$a; done
 	#cp -rl src src_; find -L src_ -not -name \*.java -a -not -type d -a -exec rm {} \;
-	-$(SYMLINKER) --op=link --inc='*.java' $(SRC_EXCLUDE:%=--exc='%') src src_
+	-$(SYMLINKER) --op=link --inc='*.java' $(SRC_EXCLUDE:%=--exc='%') $(SRC) $(SRC_)
 	#cd src_; rm -f $(SRC_EXCLUDE)
 	ant $(if $(NODEPS),nodeps) $(REL)
 
@@ -129,11 +131,12 @@ log:
 shell:
 	adb shell $(ARGS)
 
-SRC?= src
-EXCLUDE= src_
+SRCTAG ?= $(SRC)
+EXCTAG ?= $(SRC_)
 .PHONY: tags
-tag tags:
-	ctags -R --langmap=matlab: $(EXCLUDE:%=--exclude=%) $(SRC)
+tag tags:  plaintags
+plaintags:
+	ctags -R $(CTAGSflags) $(EXCTAG:%=--exclude=%) $(SRCTAG)
 
 
 TARGET=android-$T

@@ -23,7 +23,6 @@ import android.util.Log;
 import com.svilendobrev.appbase.MenuDescr;
 import android.view.MenuItem;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import java.util.HashMap;
 
 // Common ui functionalities
@@ -179,7 +178,20 @@ class dlg {
 } //dlg
 
 /////// contextMenus: see jbase/appbase/ActivityBase ; generic
-// make a static instance then override activity's onCreateContextMenu/onContextItemSelected
+/* make a (static??) instance then override activity's onCreateContextMenu/onContextItemSelected e.g. in fragmentor
+    public Common.contextMenus contextMenus = new contextMenus();
+    @Override public void onCreateContextMenu( ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu( menu, v, menuInfo);
+        if (contextMenus !=null)
+            contextMenus.onCreateContextMenu( this, menu, v, menuInfo);
+    }
+    @Override public boolean onContextItemSelected( MenuItem item) {
+        return contextMenus.onContextItemSelected( this, item);
+    }
+    public void setContextMenu( View v, MenuDescr m) {
+        contextMenus.setContextMenu( this, v, m);
+    }
+*/
 static public
 class contextMenus {
     public contextMenus() {}
@@ -187,7 +199,7 @@ class contextMenus {
     protected HashMap< View, MenuDescr> _contextMenus = new HashMap();
     protected View _currentContextView; //fragile?
     //@Override
-    public void onCreateContextMenu( Activity activity, ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu( Activity activity, ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         _currentContextView = v;
         MenuDescr d = _contextMenus.get( v);
         //MenuInflater inflater =

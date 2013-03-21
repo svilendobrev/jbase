@@ -25,11 +25,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
-import android.view.MenuInflater;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
 
 import java.util.HashMap;
@@ -65,8 +63,6 @@ public abstract class ActivityBase<S extends StateBase> extends Activity {
 
     static Hashtable<String, StateBase> activity2state = new Hashtable();
 
-    public MenuDescr optionsMenu;
-    private HashMap< View, MenuDescr> contextMenus = new HashMap();
 
     void _updatetime() {
         datetime.updateTimeZone();
@@ -220,7 +216,6 @@ public abstract class ActivityBase<S extends StateBase> extends Activity {
         debug("updateUI");
     }
 
-    public View currentContextView;
 
     public Handler handler = new Handler();
 
@@ -346,42 +341,42 @@ public abstract class ActivityBase<S extends StateBase> extends Activity {
         debug("onPrepareDialog: " + id +" " +dialog);
     }
 
-    @Override public boolean onCreateOptionsMenu( Menu menu) {
-        if (optionsMenu != null) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate( optionsMenu.resId, menu);
-            return true;
-        }
-        return false;
-    }
 
+    protected MenuDescr optionsMenu;
+    @Override public boolean onCreateOptionsMenu( Menu menu) {
+        if (optionsMenu == null) return false
+        getMenuInflater().inflate( optionsMenu.resId, menu);
+        return true;
+    }
     @Override public boolean onPrepareOptionsMenu( Menu menu) {
         optionsMenu.update( menu);
         return super.onPrepareOptionsMenu( menu);
     }
-
-    @Override public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu( menu, v, menuInfo);
-        currentContextView = v;
-        MenuDescr d = contextMenus.get( v);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate( d.resId, menu);
-        d.update( menu, menuInfo);
-    }
     @Override public boolean onOptionsItemSelected( MenuItem item) {
         optionsMenu.start( this, item);
         return true;
+    }
+
+
+    private HashMap< View, MenuDescr> contextMenus = new HashMap();
+    public View currentContextView;
+    @Override public void onCreateContextMenu( ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu( menu, v, menuInfo);
+        currentContextView = v;
+        MenuDescr d = contextMenus.get( v);
+        getMenuInflater().inflate( d.resId, menu);
+        d.update( menu, menuInfo);
     }
     @Override public boolean onContextItemSelected( MenuItem item) {
         MenuDescr d = contextMenus.get( currentContextView);
         d.start(this, item);
         return true;
     }
-
     public void setContextMenu( View v, MenuDescr m) {
         registerForContextMenu( v);
         contextMenus.put( v, m);
     }
+
 
     static private int childKey = 0;
     static protected HashMap< Integer, ResultCallback<? extends ActivityBase>> callbacks = new HashMap();

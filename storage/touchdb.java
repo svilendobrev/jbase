@@ -134,6 +134,7 @@ class touchdb {
             }
             @Override protected void onSuccess() {
                 Log.v( TAG, "databasesOK");
+                _isDatabaseOK = true;
                 onDatabasesOK();
                 startReplications();
                 Log.v( TAG, "startedOK");
@@ -145,6 +146,7 @@ class touchdb {
     public
     void close() {
         Log.v( TAG, "stopDB");
+        _isDatabaseOK = false;
 
         //stop the async tasks that follow the changes feed
         for (CouchbaseViewListAdapter a : adapters)
@@ -183,6 +185,8 @@ class touchdb {
         return prefs.getString( _SYNC_URL_pref, DEFAULT_dburl() );
     }
 
+    protected   boolean _isDatabaseOK = false;
+    public      boolean isDatabaseOK() { return _isDatabaseOK; }
     protected
     void onDatabasesOK() {}                 //XXX do override
         //Log.d( TAG, "onDatabasesOK - attach adapters to the list etc");

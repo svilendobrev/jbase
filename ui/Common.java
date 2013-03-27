@@ -79,18 +79,22 @@ View[] getSubViews( View[] vs, int id) {
 // use like   Common.setOnClick( this, R.id.butt, new View.OnClickListener() { @Override public void onClick( View v) {
 static public
 View setOnClick( Activity context, int id, View.OnClickListener l ) {
+    funk.assertTrue( id !=0);
     View v = context.findViewById( id);
     v.setOnClickListener( l ); return v;
 }
 static public
 View setOnClick( View context, int id, View.OnClickListener l ) {
+    funk.assertTrue( id !=0);
     View v = context.findViewById( id);
     v.setOnClickListener( l ); return v;
 }
 
 static public
 void setText( View context, int id, String text) {
-    ((TextView) context.findViewById( id)).setText( text);
+    funk.assertTrue( id !=0);
+    View v = context.findViewById( id);
+    ((TextView) v).setText( text);
 }
 
 /////// toasts

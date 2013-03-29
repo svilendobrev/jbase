@@ -91,7 +91,7 @@ View setOnClick( View context, int id, View.OnClickListener l ) {
 }
 
 static public
-void setText( View context, int id, String text) {
+void setText( View context, int id, CharSequence text) {
     funk.assertTrue( id !=0);
     View v = context.findViewById( id);
     ((TextView) v).setText( text);

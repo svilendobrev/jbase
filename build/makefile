@@ -109,6 +109,12 @@ adb:
 	adb kill-server
 #	killall adb
 
+_adb:
+	adb $(ARGS)
+
+adbdev:
+	adb devices
+
 android:
 	android
 

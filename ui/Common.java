@@ -25,6 +25,11 @@ import android.view.MenuItem;
 import android.view.ContextMenu;
 import java.util.HashMap;
 
+import android.view.inputmethod.InputMethodManager;
+
+import android.widget.Button;
+import android.util.TypedValue;
+
 // Common ui functionalities
 public
 class Common {
@@ -113,31 +118,41 @@ static public
 class dlg {
     public
     interface ok {
-        void ok( String input_text) ;
+        void ok() ;
+    }
+    public
+    interface ok2 {
+        void ok( String input_text, View input) ;
     }
     static public
-    void _dlgEdit( Context a, String title, final ok okker, String text) {
+    void _dlgEdit( final Context a, String title, String message, final ok2 okker, String text, Integer input_type) {
         final EditText input = new EditText( a);
         input.setText( text);
-        new Builder( a)
+        if (input_type!=null) input.setInputType( input_type);
+        Builder b = new Builder( a)
         .setTitle( title)
-        .setMessage( "Enter name:")
+        .setMessage( message)
         .setView( input)
         .setPositiveButton( "Ok", new DialogInterface.OnClickListener() {
             @Override public void onClick( DialogInterface dialog, int which) {
-                okker.ok( input.getText().toString() ); } })
+                //hideKeyboard( a, input);
+                okker.ok( input.getText().toString(), input ); } })
         //.setOnCancelListener( new DialogInterface.OnCancelListener() {
         //    @Override public void onCancel( DialogInterface dialog) { // Canceled
         //    } })
         .setNegativeButton( "Cancel", null )
-        .create().show();
+        ;
+        b.create().show();
     }
+    //static public
+    //void z_dlgEdit( Context a, String title, final ok okker, String text) {
+    //    _dlgEdit( a, title, okker, text, "Enter name:") }
     static public
-    void dlgAdd( Context a, String kind, final ok okker ) {
-        _dlgEdit( a, "Add new " + kind, okker, ""); }
+    void dlgAdd( Context a, String kind, final ok2 okker ) {
+        _dlgEdit( a, "Add new " + kind, "Enter name:", okker, "", null); }
     static public
-    void dlgRename( Context a, String kind, String oldname, final ok okker ) {
-        _dlgEdit( a, "Rename " + kind, okker, oldname); }
+    void dlgRename( Context a, String kind, String oldname, final ok2 okker ) {
+        _dlgEdit( a, "Rename " + kind, "Enter name:", okker, oldname, null); }
     static public
     Builder _dlgOkCancel( Context a, String title, String message, final ok okker ) {
         return new Builder( a)
@@ -145,7 +160,7 @@ class dlg {
         .setMessage( message)
         .setPositiveButton( "Ok", new DialogInterface.OnClickListener() {
             @Override public void onClick( DialogInterface dialog, int which) {
-                okker.ok( null ); }})
+                okker.ok(); }})
         .setNegativeButton( "Cancel", null);
     }
     static public
@@ -169,7 +184,7 @@ class dlg {
                 @Override public void onClick( DialogInterface dialog, int which) {
                     final Object item2del = okker.choice( which);
                     dlgOkCancel( a, "Delete " + kind + " " + okker.name( item2del) + " ?",
-                        new ok() { @Override public void ok( String ignore) {
+                        new ok() { @Override public void ok() {
                             okker.ok( item2del);
                         }});
             }})
@@ -245,7 +260,38 @@ textInput.setOnKeyListener( new OnKeyListener() {
         } return false;
 }});
 */
+static public
+void hideKeyboard( Context a, View v) {    //edittext or tabhost or whatever
+    ((InputMethodManager)a.getSystemService( Activity.INPUT_METHOD_SERVICE))
+    .hideSoftInputFromWindow(
+        //v.getWindowToken()
+        v.getApplicationWindowToken()
+        , 0);
+}
+static public
+void showKeyboard( Activity a) {
+    ((InputMethodManager)a.getSystemService( Activity.INPUT_METHOD_SERVICE))
+    .toggleSoftInput( InputMethodManager.SHOW_FORCED, 0) ;
+}
 
+/*
+static public
+void copyButtonStyle( Button from, Button to) {
+    //XXX does not really work. inflate-from-butt.xml
+    //to.setText( ..)
+    //to.setId( ..)
+    to.setBackgroundDrawable( from.getBackground());
+    to.setLayoutParams( from.getLayoutParams());
+    to.setGravity( from.getGravity());
+    to.setPadding( from.getPaddingLeft(), from.getPaddingTop(), from.getPaddingRight(), from.getPaddingBottom());
+    to.setTextSize( TypedValue.COMPLEX_UNIT_PX, from.getTextSize());
+    Drawable[] dd = from.getCompoundDrawables();
+    to.setCompoundDrawables( dd[0], dd[1], dd[2], dd[3]);
+    to.setTextColor( from.getTextColors());
+
+    //to.setTextAppearance( this, R.style.buttLabel);
+}
+*/
 
 } // Common
 // vim:ts=4:sw=4:expandtab

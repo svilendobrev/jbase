@@ -105,18 +105,18 @@ emu:
 sdcard:
 	mksdcard -l sdcard 256M $(SDCARD)
 
-adb:
+adbkill:
 	adb kill-server
 #	killall adb
 
-_adb:
+adb:
 	adb $(ARGS)
 
 adbdev:
 	adb devices
 
 android:
-	android
+	android $(ARGS)
 
 clean:
 	rm -rf bin/classes
@@ -138,7 +138,7 @@ rmpref:
 	adb -e shell rm /data/data/$(APP)/sh*/com*
 
 log:
-	adb -e logcat
+	adb -e logcat $(ARGS)
 
 shell:
 	adb shell $(ARGS)

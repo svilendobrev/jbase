@@ -455,19 +455,25 @@ class touchdb {
     static public Double  db2float(  JsonNode a, double _default)  { return a == null ? _default : a.doubleValue(); }
     static public Boolean db2bool(   JsonNode a, boolean _default) { return a == null ? _default : a.booleanValue(); }
 
+    static public boolean db_is_null( JsonNode a) { return a == null || a.isMissingNode() || a.isNull(); }
+
     static public HashMap< String, ArrayList< String>> db2map_str_list_str( JsonNode a) {
-        if (a == null || a.isMissingNode() || a.isNull()) return null;
+        if (db_is_null(a)) return null;
         HashMap< String, ArrayList< String>> rmap = new HashMap();
         Iterator< Map.Entry< String, JsonNode>> entries = ((ObjectNode)a).fields();
+        //Log.d( TAG, "db2map_str_list_str " + ": " + a);
         while (entries.hasNext()) {
             Map.Entry< String, JsonNode> entry = entries.next();
             ArrayList< String> ra = null;
             JsonNode ev = entry.getValue();
-            if (ev != null && !ev.isMissingNode() && !ev.isNull()) {
+            if (!db_is_null( ev)) {
                 ra = new ArrayList();
-                for (Iterator< JsonNode> items = ((ArrayNode)ev).elements(); items.hasNext(); )
-                    ra.add( db2string( items.next() ) );
-                //if (funk.not(ra)) ra = null;
+                if (ev instanceof ArrayNode) {
+                    for (Iterator< JsonNode> items = ((ArrayNode)ev).elements(); items.hasNext(); )
+                        ra.add( db2string( items.next() ) );
+                    //if (funk.not(ra)) ra = null;
+                } else
+                    ra.add( db2string( ev ) );
             }
             rmap.put( entry.getKey(), ra );
         }

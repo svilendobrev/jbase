@@ -1,3 +1,4 @@
+
 # no-nonsense android build system
 # svd 2010-
 #
@@ -94,13 +95,18 @@ inst:
 phone:
 	adb -d install -r $(PACK)
 
+
+
+EMUFLAGS += -no-boot-anim
+EMUFLAGS += -noaudio	#CPU 100%->15%
+#XXX OR: AVD set extra flag "Audio playback support" to "no": CPU 100%->15%
+EMU = emulator -avd $(AVD) -sdcard $(SDCARD) -dns-server $(DNS) $(EMUFLAGS)
+
 emu_new:
-	#android create avd --name devtest --target 1
-	#sudo umount /media/android_sdcard
-	emulator -avd $(AVD) -sdcard $(SDCARD) -dns-server $(DNS) -wipe-data &
+	$(EMU) -wipe-data &
 
 emu:
-	emulator -avd $(AVD) -sdcard $(SDCARD) -dns-server $(DNS) &
+	$(EMU) &
 
 sdcard:
 	mksdcard -l sdcard 256M $(SDCARD)

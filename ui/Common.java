@@ -176,14 +176,15 @@ class dlg {
         void ok(     Object choice ) ;
     }
     static public
-    void dlgDel( final Context a, final String kind, final CharSequence[] items, final choice okker ) {
+    void _dlgChoose( final Context a, final String title, final CharSequence[] items, final choice okker, final boolean ask) {
         new Builder( a)
-        .setTitle( "Delete "+kind)
+        .setTitle( title)
         .setItems( items,
             new DialogInterface.OnClickListener() {
                 @Override public void onClick( DialogInterface dialog, int which) {
                     final Object item2del = okker.choice( which);
-                    dlgOkCancel( a, "Delete " + kind + " " + okker.name( item2del) + " ?",
+                    if (!ask) return;
+                    dlgOkCancel( a, title+ " " + okker.name( item2del) + " ?",
                         new ok() { @Override public void ok() {
                             okker.ok( item2del);
                         }});
@@ -193,6 +194,11 @@ class dlg {
         //    }})
         .setNegativeButton( "Cancel", null )
         .create().show();
+    }
+    static public
+    void dlgDel( final Context a, final String kind, final CharSequence[] items, final choice okker ) {
+        String title = "Delete "+kind;
+        _dlgChoose( a, title, items, okker, true);
     }
 } //dlg
 

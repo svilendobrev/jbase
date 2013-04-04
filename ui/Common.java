@@ -24,11 +24,15 @@ import com.svilendobrev.appbase.MenuDescr;
 import android.view.MenuItem;
 import android.view.ContextMenu;
 import java.util.HashMap;
+import java.util.List;
 
 import android.view.inputmethod.InputMethodManager;
 
 import android.widget.Button;
 import android.util.TypedValue;
+
+import android.location.LocationManager;
+import android.location.Location;
 
 // Common ui functionalities
 public
@@ -120,9 +124,10 @@ class dlg {
     interface ok {
         void ok() ;
     }
-    public
-    interface ok2 {
-        void ok( String input_text, View input) ;
+    public static abstract
+    class ok2 {
+        abstract public void ok( String input_text, View input) ;
+        public void cancel( View input) {}
     }
     static public
     void _dlgEdit( final Context a, String title, String message, final ok2 okker, String text, Integer input_type) {
@@ -140,7 +145,11 @@ class dlg {
         //.setOnCancelListener( new DialogInterface.OnCancelListener() {
         //    @Override public void onCancel( DialogInterface dialog) { // Canceled
         //    } })
-        .setNegativeButton( "Cancel", null )
+        .setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
+            @Override public void onClick( DialogInterface dialog, int which) {
+                //hideKeyboard( a, input);
+                okker.cancel( input ); } })
+        //null )
         ;
         b.create().show();
     }
@@ -298,6 +307,19 @@ void copyButtonStyle( Button from, Button to) {
     //to.setTextAppearance( this, R.style.buttLabel);
 }
 */
+
+    static public
+    Location getLastKnownLocation_any( Context c) {
+        LocationManager lm = (LocationManager)c.getSystemService( Context.LOCATION_SERVICE);
+        List< String> providers = lm.getProviders( true);
+        /* Loop over the array backwards, and if you get an accurate location, then break out the loop*/
+        Location l = null;
+        for (int i = providers.size(); --i>=0; ) {
+            l = lm.getLastKnownLocation( providers.get(i));
+            if (l != null) break;
+        }
+        return l;
+    }
 
 } // Common
 // vim:ts=4:sw=4:expandtab

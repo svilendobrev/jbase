@@ -162,10 +162,14 @@ static public
 void split_skip_empties( String input, String regex, Collection< String> r) { split( input, regex, r, true); }
 
 static public
-ArrayList<String> split_skip_empties( String input, String regex ) {
+ArrayList<String> split( String input, String regex, boolean skip_empties ) {
     ArrayList<String> r = new ArrayList();
-    split( input, regex, r, true);
+    split( input, regex, r, skip_empties);
     return r;
+}
+static public
+ArrayList<String> split_skip_empties( String input, String regex ) {
+    return split( input, regex, true);
 }
 
 static public   ArrayList<String> split( String input) { return split_skip_empties( input, " "); }
@@ -173,6 +177,7 @@ static public   String[]          split2array( String input ) { return toArray( 
 
 static public   String rsplit_last( String input, String regex ) {
     ArrayList<String> r = split_skip_empties( input, regex);
+    if (funk.not( r)) return null;
     return r.get( r.size() -1 );
 }
 

@@ -284,9 +284,10 @@ boolean same( Class[][] x, Class[][] y) {
     return true;
 }
 
+static public boolean contains( String c, String x)     { return c != null && x != null && c.contains( x); }
 static public boolean contains( Collection c, Object x) { return c != null && c.contains( x); }
-static public boolean contains( Map c, Object x) { return c != null && c.containsKey( x); }
-static public boolean containsValue( Map c, Object x) { return c != null && c.containsValue( x); }
+static public boolean contains( Map c, Object x)        { return c != null && c.containsKey( x); }
+static public boolean containsValue( Map c, Object x)   { return c != null && c.containsValue( x); }
 //static public <T> boolean contains( T[] c, T x) {
 static public boolean contains( int[] c, int x) {
     if (c!=null)

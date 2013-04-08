@@ -184,6 +184,11 @@ class dlg {
         String name( Object choice ) ;
         void ok(     Object choice ) ;
     }
+
+        //final CharSequence[] items = new CharSequence[ funk.len( id_anchors) ];
+        //int i = 0; for (int id: id_anchors) items[i++] = getString( id);
+    static public CharSequence[] toArrayCS( List< CharSequence> items)  { return (CharSequence[]) items.toArray( new CharSequence[0]); }
+    static public CharSequence[] toArray( List< String> items)       { return (CharSequence[]) items.toArray( new CharSequence[0]); }
     static public
     void _dlgChoose( final Context a, final String title, final CharSequence[] items, final choice okker, final boolean ask) {
         new Builder( a)

@@ -144,6 +144,7 @@ interface MenuHandler {
     public void update( Menu menu) { _update( menu, null); }
 
     private void _update( Menu menu, MenuItemInfo mii) {
+        if (mii == null) mii = new MenuItemInfo( null, null);
         for (int id : descr.keySet()) {
             D d = descr.get(id);
             mii.item = menu.findItem( id);

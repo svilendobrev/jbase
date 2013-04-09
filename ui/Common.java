@@ -22,6 +22,7 @@ import android.util.Log;
 
 import com.svilendobrev.appbase.MenuDescr;
 import android.view.MenuItem;
+import android.view.Menu;
 import android.view.ContextMenu;
 import java.util.HashMap;
 import java.util.List;
@@ -236,21 +237,34 @@ class contextMenus {
     public contextMenus() {}
 
     protected HashMap< View, MenuDescr> _contextMenus = new HashMap();
-    protected View _currentContextView; //fragile?
+
+    //fragile? set onCreateContextMenu , unset .. never (dont use onClosed)
+    protected View _currentContextView;
+    public    ContextMenu.ContextMenuInfo _menuInfo; //fragile? but submenus dont get it otherwise
+
     //@Override
     public void onCreateContextMenu( Activity activity, ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         _currentContextView = v;
+        _menuInfo = menuInfo;
         MenuDescr d = _contextMenus.get( v);
-        //MenuInflater inflater =
         activity.getMenuInflater().inflate( d.resId, menu);
+        Log.d( "contextMenus", "onCreateContextMenu "+menu + " " +menuInfo);
         d.update( menu, menuInfo);
     }
     //@Override
     public boolean onContextItemSelected( Activity activity, MenuItem item) {
         MenuDescr d = _contextMenus.get( _currentContextView);
-        d.start( activity, item);
+        // MenuItem.getMenuInfo() == null for submenus..
+        d.start( activity, item, _menuInfo);
         return true;
     }
+    /* dont use: called before submenu opens
+    //@Override
+    public void onContextMenuClosed( Menu menu) {
+        _currentContextView = null;
+        _menuInfo = null;
+    }
+    */
 
     public void setContextMenu( Activity activity, View v, MenuDescr m) {
         activity.registerForContextMenu( v);

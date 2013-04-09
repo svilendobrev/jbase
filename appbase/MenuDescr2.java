@@ -42,7 +42,6 @@ class ResultCallback<T> {
     public MenuDescr2( int resId)               { super( resId); }
     public MenuDescr2( int resId, int titleId)  { super( resId, titleId); }
     public MenuDescr2( int resId, String title) { super( resId, title); }
-    public MenuDescr2( int resId, DynamicTitle dynamicTitle)    { super( resId, dynamicTitle); }
 
 } //MenuDescr2
 

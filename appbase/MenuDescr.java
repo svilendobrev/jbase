@@ -22,6 +22,7 @@ class D {
 
     public MenuHandler menuHandler;  //for executing simple routine (no child activity involved)
     public MenuUpdater updater;
+    public int requestCode = -1;
 
     /** constructors with child activity */
     public D( Class<? extends Activity> activityClass) {
@@ -40,42 +41,50 @@ class D {
         this( menuHandler);
         this.updater = updater;
     }
-    public void update( MenuItem item) {
-        if (updater!=null) updater.update( item);
+    public D requestCode( int rcode) {
+        this.requestCode = rcode;
+        return this;
+    }
+    public void update( MenuItemInfo ii) {
+        if (updater!=null) updater.update( ii);
     }
 
-    public void start( Activity context, MenuItem item) {
+//    public void start( Activity context, MenuItem item) { start( context, item, null); }
+    public void start( Activity context, MenuItem item, ContextMenu.ContextMenuInfo info) {
         if (menuHandler != null)
-            menuHandler.handle( item);
+            menuHandler.handle( new MenuItemInfo( item, info));
         //if (checkable)
         //    item.setChecked( !item.isChecked());
-        if (activityClass != null) {
-            context.startActivity( new Intent( context, activityClass));
-        }
+        if (activityClass != null)
+            context.startActivityForResult( new Intent( context, activityClass), requestCode);
     }
 } //D
 
 static public
+class MenuItemInfo {
+    public MenuItem item;
+    public ContextMenu.ContextMenuInfo info;    //null for non-ContextMenu i.e. options ; maybe null for ContextMenu too
+
+    public MenuItemInfo( MenuItem item, ContextMenu.ContextMenuInfo info) {
+        this.item = item;
+        this.info = info;
+    }
+}
+
+static public
 interface MenuUpdater {
-    public void update( MenuItem item);
+    public void update( MenuItemInfo item);
 }
 public static
 interface MenuHandler {
-    public void handle( MenuItem item);
+    public void handle( MenuItemInfo item);
 }
-
-public static
-interface DynamicTitle{
-    public String getTitle( ContextMenu.ContextMenuInfo info);
-}
-
 
 
     public HashMap< Integer, D> descr = new HashMap();
     public int resId;
     public Integer titleId;
     public String title;
-    public DynamicTitle dynamicTitle;
 
     public MenuDescr( int resId) { this.resId = resId; }
     public MenuDescr( int resId, int titleId) {
@@ -86,10 +95,10 @@ interface DynamicTitle{
         this(resId);
         this.title = title;
     }
-    public MenuDescr( int resId, DynamicTitle dynamicTitle) {
-        this(resId);
-        this.dynamicTitle = dynamicTitle;
-    }
+
+    //do override
+    public String dynamicTitle( MenuItemInfo mii) { return null; }
+
 
     public D put( int id, D d) {
         descr.put( id, d);
@@ -105,35 +114,40 @@ interface DynamicTitle{
         return put( id, new D( menuHandler, updater));
     }
 
-    public boolean start( Activity context, MenuItem item) {
+    public boolean start( Activity context, MenuItem item) { return start( context, item, null); }
+    public boolean start( Activity context, MenuItem item, ContextMenu.ContextMenuInfo info) {
         if (item.hasSubMenu())
             return true;
         D d = descr.get( item.getItemId());
         if (d==null) return false;
-        d.start( context, item);
+        d.start( context, item, info);
         return true;
     }
 
     public void update( ContextMenu menu, ContextMenu.ContextMenuInfo info) {
+        MenuItemInfo mii = new MenuItemInfo( null, info);
         if (menu instanceof ContextMenu) {
             ContextMenu m = (ContextMenu) menu;
-            if (dynamicTitle != null)
-                m.setHeaderTitle( dynamicTitle.getTitle( info));
+            String t = dynamicTitle( mii);
+            if (t != null)
+                m.setHeaderTitle( t);
             else
-            if ( funk.any(title))
+            if (funk.any(title))
                 m.setHeaderTitle( title);
             else
-            if ( titleId != null)
+            if (titleId != null)
                 m.setHeaderTitle( titleId);
         }
-        update( menu);
+        _update( menu, mii);
     }
 
-    public void update( Menu menu) {
+    public void update( Menu menu) { _update( menu, null); }
+
+    private void _update( Menu menu, MenuItemInfo mii) {
         for (int id : descr.keySet()) {
             D d = descr.get(id);
-            MenuItem item = menu.findItem( id);
-            d.update( item);
+            mii.item = menu.findItem( id);
+            d.update( mii);
         }
     }
 } //MenuDescr

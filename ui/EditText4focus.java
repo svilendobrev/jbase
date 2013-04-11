@@ -20,6 +20,7 @@ public class EditText4focus extends EditText {
     @Override
     protected void onFocusChanged( boolean focused, int direction, Rect previouslyFocusedRect) {
         super.onFocusChanged( focused, direction, previouslyFocusedRect);
+        //Log.d( "onFocusChanged", ""+direction + " "+previouslyFocusedRect);
         if (focuser!=null) focuser.focus( focused);
     }
 

@@ -107,6 +107,18 @@ void setText( View context, int id, CharSequence text) {
     ((TextView) v).setText( text);
 }
 
+static public
+String getText( EditText ev) {
+    funk.assertTrue( ev != null);
+    return ev.getText().toString();
+}
+static public
+String getText( View context, int edit_text_id) {
+    funk.assertTrue( edit_text_id !=0);
+    View v = context.findViewById( edit_text_id);
+    return getText( (EditText) v);
+}
+
 /////// toasts
 static public
 void toastShort( Context context, String text) { Toast.makeText( context, text, Toast.LENGTH_SHORT ).show(); }
@@ -128,8 +140,22 @@ class dlg {
     public static abstract
     class ok2 {
         abstract public void ok( String input_text, View input) ;
-        public void cancel( View input) {}
+        public          void cancel( View input) {}
     }
+/* AlertDialog always will be closed after ok().
+To re-show (e.g. because validate), store it and send a message:
+    AlertDialog _dlg;
+    Handler _showHandler = new Handler() { @Override public void handleMessage( Message msg) {
+        _dlg.show();
+    }};
+    ...
+        _dlg = Common.dlg._dlgOkCancel( ...
+            ok() {
+                ...
+                _showHandler.sendEmptyMessage( 1234 );
+  /////////////
+    or, use ManagedDialog
+*/
     static public
     void _dlgEdit( final Context a, String title, String message, final ok2 okker, String text, Integer input_type) {
         final EditText input = new EditText( a);
@@ -139,15 +165,13 @@ class dlg {
         .setTitle( title)
         .setMessage( message)
         .setView( input)
-        .setPositiveButton( "Ok", new DialogInterface.OnClickListener() {
-            @Override public void onClick( DialogInterface dialog, int which) {
+        .setPositiveButton( "Ok", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
                 //hideKeyboard( a, input);
-                okker.ok( input.getText().toString(), input ); } })
-        //.setOnCancelListener( new DialogInterface.OnCancelListener() {
-        //    @Override public void onCancel( DialogInterface dialog) { // Canceled
-        //    } })
-        .setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
-            @Override public void onClick( DialogInterface dialog, int which) {
+                okker.ok( input.getText().toString(), input );
+                }})
+        //.setOnCancelListener( new DialogInterface.OnCancelListener() { @Override public void onCancel( DialogInterface dialog) {
+        //    }})
+        .setNegativeButton( "Cancel", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
                 //hideKeyboard( a, input);
                 okker.cancel( input ); } })
         //null )
@@ -168,8 +192,7 @@ class dlg {
         return new Builder( a)
         .setTitle( title)
         .setMessage( message)
-        .setPositiveButton( "Ok", new DialogInterface.OnClickListener() {
-            @Override public void onClick( DialogInterface dialog, int which) {
+        .setPositiveButton( "Ok", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
                 okker.ok(); }})
         .setNegativeButton( "Cancel", null);
     }
@@ -179,11 +202,12 @@ class dlg {
     void dlgOkCancel( Context a, String title, String message, final ok okker ) {
         _dlgOkCancel( a, title, message, okker ) .create().show(); }
 
-    public
-    interface choice {
-        Object choice( int which ) ;
-        String name( Object choice ) ;
-        void ok(     Object choice ) ;
+    public static abstract
+    class choice {
+        abstract public Object  choice( int which ) ;
+        public          String  ask_name( Object choice ) { return null; }
+        public          void    ask_ok(   Object choice ) {}
+        //public          void    cancel() {}
     }
 
         //final CharSequence[] items = new CharSequence[ funk.len( id_anchors) ];
@@ -194,20 +218,19 @@ class dlg {
     void _dlgChoose( final Context a, final String title, final CharSequence[] items, final choice okker, final boolean ask) {
         new Builder( a)
         .setTitle( title)
-        .setItems( items,
-            new DialogInterface.OnClickListener() {
-                @Override public void onClick( DialogInterface dialog, int which) {
-                    final Object item2del = okker.choice( which);
-                    if (!ask) return;
-                    dlgOkCancel( a, title+ " " + okker.name( item2del) + " ?",
-                        new ok() { @Override public void ok() {
-                            okker.ok( item2del);
-                        }});
+        .setItems( items, new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
+                final Object item2del = okker.choice( which);
+                if (!ask) return;
+                dlgOkCancel( a, title+ " " + okker.ask_name( item2del) + " ?",
+                    new ok() { @Override public void ok() {
+                        okker.ask_ok( item2del);
+                    }});
             }})
         //.setOnCancelListener( new DialogInterface.OnCancelListener() { @Override public void onCancel( DialogInterface dialog) {
-        //        // Canceled
         //    }})
         .setNegativeButton( "Cancel", null )
+        //.setNegativeButton( "Cancel", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
+        //        okker.cancel(); } })
         .create().show();
     }
     static public

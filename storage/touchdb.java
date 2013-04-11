@@ -284,13 +284,41 @@ class touchdb {
         return _query_value_is_doc( query( design_view_name), dbname, design_view_name);
     }
 
+    static public boolean
+    _has_deleted( JsonNode v) {
+        JsonNode deleted = v.findPath( "deleted");
+        return !db_is_null( deleted) && deleted.booleanValue();
+    }
+
     static public JsonNode
-    row2doc( ViewResult.Row x, Boolean use_value) {
-        JsonNode v = (use_value!=null && use_value) ? x.getValueAsNode() : x.getDocAsNode();
-        if (use_value==null && v==null) v = x.getValueAsNode();     //no doc, try value
+    _row2value( ViewResult.Row x, boolean with_deleted) {
+        JsonNode v = x.getValueAsNode();
+        if (with_deleted || v==null) return v;
+        if (_has_deleted( v)) return null;
         return v;
     }
-    static public JsonNode row2doc( ViewResult.Row x) { return row2doc( x, null); }
+
+    static public JsonNode
+    row2doc( ViewResult.Row x, Boolean use_value, boolean with_deleted) {
+        /* XXX error:
+           couchDB : {"id":"...","key":"...","value":{"rev":"2-..","deleted":true}, "doc":null}
+           touchDB : {"id":"...","key":"...","value":{"rev":"2-.."}, "deleted":true,"doc":null}
+            and the underlaying Ektorp: ViewResult.Row.rowNode is inaccessible
+            so... strict-check won't work; guess by doc != null but db_is_null(doc)
+         */
+        //A strict check beforehand..
+        JsonNode v = _row2value( x, with_deleted);
+        if (v==null) return v;
+
+        if (use_value != null && use_value)     //use_value==true dies..
+            return v;
+
+        JsonNode d = x.getDocAsNode();
+        if (use_value == null && d == null) return v;   //no doc, try value
+        if (db_is_null( d)) d = null;
+        return d;
+    }
+    static public JsonNode row2doc( ViewResult.Row x) { return row2doc( x, null, false); }
 
     static public
     ObjectNode jsonObject() { return JsonNodeFactory.instance.objectNode(); }
@@ -553,29 +581,42 @@ class touchdb {
         public Model load( JsonNode c) { return load( null, c); }
 
         public Model.Many
-        load_as_Models( ViewResult vr, Model.Many r, Boolean use_value ) {
+        load_as_Models( ViewResult vr, Model.Many r, Boolean use_value, boolean with_deleted ) {
             if (r==null) r = Model.newCollection();
-            for (ViewResult.Row x: vr.getRows())
-                r.add( load( row2doc( x, use_value) ));
+            for (ViewResult.Row x: vr.getRows()) {
+                JsonNode d = row2doc( x, use_value, with_deleted);
+                if (d!=null)
+                    r.add( load( d ));
+            }
             return r;
         }
-        public Model.Many load_as_Models( ViewResult vr, Model.Many r)  { return load_as_Models( vr, r, null); }
-        public Model.Many load_as_Models( ViewResult vr, boolean use_value)   { return load_as_Models( vr, null, use_value ); }
-        public Model.Many load_as_Models( ViewResult vr)                      { return load_as_Models( vr, null, null); }
+        public Model.Many
+        load_as_Models( ViewResult vr, Model.Many r, Boolean use_value)     { return load_as_Models( vr, r, use_value, false); }
+        public Model.Many load_as_Models( ViewResult vr, Model.Many r )     { return load_as_Models( vr, r,    null     ); }
+        public Model.Many load_as_Models( ViewResult vr, boolean use_value) { return load_as_Models( vr, null, use_value); }
+        public Model.Many load_as_Models( ViewResult vr)                    { return load_as_Models( vr, null, null     ); }
 
+        static public int _debug = 0;
         public <T extends Model> List< T>
-        load_org( ViewResult vr, List< T> r, Boolean use_value) {
+        load_org( ViewResult vr, List< T> r, Boolean use_value, boolean with_deleted) {
             if (r==null) r = new ArrayList();
-            for (ViewResult.Row x: vr.getRows())
-                r.add( (T)load( touchdb.row2doc( x, use_value)));
+            for (ViewResult.Row x: vr.getRows()) {
+                JsonNode d = row2doc( x, use_value, with_deleted);
+                if (_debug>0) Log.d( TAG, "load_org /"+use_value +":" + x.getValueAsNode() + " >>"+ d + "/"+(d==null?null: (d.isNull() || d.isMissingNode() )) );
+                if (d!=null)
+                    r.add( (T)load( d));
+            }
             return r;
         }
-        public <T extends Model> List< T> load_org_doc(   ViewResult vr, List< T> r) { return load_org( vr, r, false); }
-        public <T extends Model> List< T> load_org_value( ViewResult vr, List< T> r) { return load_org( vr, r, true); }
-        public <T extends Model> List< T> load_org_guess( ViewResult vr, List< T> r) { return load_org( vr, r, null); }
-        public <T extends Model> List< T> load_org_doc( ViewResult vr)   { return load_org_doc( vr, null); }
-        public <T extends Model> List< T> load_org_value( ViewResult vr) { return load_org_value( vr, null); }
-        public <T extends Model> List< T> load_org_guess( ViewResult vr) { return load_org_guess( vr, null); }
+        public <T extends Model> List< T>
+        load_org( ViewResult vr, List< T> r, Boolean use_value) { return load_org( vr, r, use_value, false); }
+
+        public <T extends Model> List< T> load_org_doc(   ViewResult vr, List< T> r)    { return load_org( vr, r, false); }
+        public <T extends Model> List< T> load_org_value( ViewResult vr, List< T> r)    { return load_org( vr, r, true); }
+        public <T extends Model> List< T> load_org_guess( ViewResult vr, List< T> r)    { return load_org( vr, r, null); }
+        public <T extends Model> List< T> load_org_doc(   ViewResult vr)                { return load_org_doc(   vr, null); }
+        public <T extends Model> List< T> load_org_value( ViewResult vr)                { return load_org_value( vr, null); }
+        public <T extends Model> List< T> load_org_guess( ViewResult vr)                { return load_org_guess( vr, null); }
         public <T extends Model> List< T> load_org( ViewResult vr, boolean use_value)   { return load_org( vr, null, use_value); }
         public <T extends Model> List< T> load_org( ViewResult vr, List< T> r)          { return load_org_guess( vr, r); }
         public <T extends Model> List< T> load_org( ViewResult vr)                      { return load_org_guess( vr); }

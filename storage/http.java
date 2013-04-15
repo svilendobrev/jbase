@@ -11,22 +11,17 @@ import java.net.HttpURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+
 import java.io.File;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
-import android.graphics.BitmapFactory;
-import android.graphics.Bitmap;
-
-//import java.io.StringBuilder;
 import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
-
-//import org.xml.sax.SAXException;
 
 //XXX help: http://stackoverflow.com/questions/2793150/how-to-use-java-net-urlconnection-to-fire-and-handle-http-requests
 
@@ -40,7 +35,7 @@ public class http {
     public String url_s;
     public URL    url;
 
-    public String cookie, username, password;
+    public String cookie;
 
     public int debug = 1;
 
@@ -63,7 +58,7 @@ public class http {
 
     public int getConnectTimeout_ms() { return 10*1000; }
 
-    public void clearAuthentication() { cookie = username = password = null; }
+    public void clearAuthentication() { cookie = null; }
     public void saveAuthentication() {} //override this - save .cookie, whatever
 
     static public class Result {
@@ -72,80 +67,62 @@ public class http {
         public int length;
         public int code;
         public String message;
+
+        public byte[] readBinary() {
+            if (length<=0) return null;     //can be -1??? hmm
+            byte[] bdata = new byte[ length];
+            try {
+                int numBytesRead = 0, offset = 0;
+                while ((numBytesRead = data.read( bdata, offset, length-offset)) != -1)
+                    offset += numBytesRead;
+                return bdata;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
     }
 
-    static class Request {
+    public static class Request {
         //in
-        int debug = 0;
-        int timeout_ms = 10*1000;
-        String username, password;
+        public int debug = 0;
+        public int timeout_ms = 10*1000;
+        public boolean followRedirects = true;
         //in-out
-        String cookie;
+        public String cookie;
         //out
-        String redirectUrl;
-        Result result;
+        public String redirectUrl;
+        public Result result;
 
-        URL getRedirectUrl() throws MalformedURLException {
+        public URL getRedirectUrl() throws MalformedURLException {
             funk.assertTrue( redirectUrl != null);
             return new URL( redirectUrl);
         }
 
+        public
         boolean ok() { return result.code == HttpURLConnection.HTTP_OK; }
 
-        void send( URL url, String data) throws IOException, MalformedURLException {
-            // - try url( input-data)
-            // - in case of redirect - try new url( login-data)
-            // - in case of redirect - trying new url( input-data)
-            //XXX cycle last one or not?
-
-            HashMap<String, String> d = new HashMap();
-            if (funk.any(data)) d.put("data", data);
-            _send( url, d);
-            if (result.code != 302) return;      //all ok/err , not handled here
-
-            if (funk.not(username) || funk.not(password))
-                throw new LoginRequiredException();     //set username+password, repeat all over
-
-            HashMap<String, String> auth = new HashMap();
-            auth.put("username", username);
-            auth.put("password", password);
-            _send( getRedirectUrl(), auth);
-
-            if (result.code == 401)  //Unauthorized
-                throw new LoginRequiredException();
-
-            cookie = result.cookie;
-
-            if (result.code == 302) {
-                //TODO: avoid infinite redirects
-                _send( getRedirectUrl(), d);
-            }
-        }
-
-        protected
-        void _send( URL url, HashMap<String,String> data) throws IOException {
+        public
+        void send( URL url, Params data) throws IOException {
+            //data == null: GET; else POST
             if (debug>0 && url !=null)     Log.d( "REQUEST: " + url);
-            if (debug>1 && funk.any(data)) Log.d( "REQUEST: " + data);
+            if (debug>1 && Params.any(data)) Log.d( "REQUEST: " + data);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             if (funk.any( cookie)) conn.setRequestProperty( "Cookie", cookie);      //maybe cookie.split(";", 2)[0]); to ignore expires= etc
 
             try {
-                conn.setDoOutput( true);    //triggers POST
                 conn.setConnectTimeout( timeout_ms);
                 conn.setReadTimeout( timeout_ms);
-                conn.setInstanceFollowRedirects( false);
-                if (funk.any(data)) {
-                    String x = "";
-                    for (String key : data.keySet()) {
-                        if (funk.any(x)) x+="&";
-                        x += key + "=" + URLEncoder.encode( data.get(key), "UTF-8");
-                    }
+                conn.setInstanceFollowRedirects( followRedirects);
+                if (data != null) conn.setDoOutput( true);    //triggers POST
+                if (Params.any( data)) {
+                    String x = data.encode_params();
                     if (debug>2) Log.d( "REQUEST.out: " + x);
 
                     OutputStreamWriter out = new OutputStreamWriter( conn.getOutputStream());
                     try {
-                        out.write( x); //URLEncoder.encode( "data="+data, "UTF-8"));
+                        out.write( x);
                         out.flush();
                     } finally { out.close(); }
                 }
@@ -176,20 +153,16 @@ public class http {
             }
         }
     }
-    Request request() {
-        Request r = new Request();
+    //override if other Request
+    public Request _request() { return new Request(); }
+
+    public Result send_http_request( URL url, Params data) throws IOException {
+        if (debug>0 && url !=null) Log.d( "RREQUEST: " + url);
+        if (url == null) url = this.url;
+        Request r = _request();
         r.debug = debug;
         r.timeout_ms = getConnectTimeout_ms();
         r.cookie = cookie;
-        r.username = username;
-        r.password = password;
-        return r;
-    }
-
-    public Result send_http_request( URL url, String data) throws IOException {
-        if (debug>0 && url !=null) Log.d( "RREQUEST: " + url);
-        if (url == null) url = this.url;
-        Request r = request();
         r.send( url, data );
         if (r.ok()) {
             if (cookie != r.cookie) {
@@ -203,42 +176,10 @@ public class http {
         setError( ErrType.ERR_COMMUNICATION, "HTTP error: " + url + "\n" + err );
         return null;
     }
-
-    public
-    InputStream get_result_data( URL url, String data) throws IOException {
-        Result r = send_http_request( url, data);
-        return r != null ? r.data : null;
-    }
-
-    public
-    BaseSAXHandler _req( URL url, String url_s, String data, BaseSAXHandler handler) {
-        setError();
-        try {
-            // url_s > url > this.url_s > this.url
-            if (funk.any( url_s)) url = new URL( url_s);
-            else
-            if (url==null)
-                if (funk.any( this.url_s)) url = new URL( this.url_s);
-                //else this.url, in send_http_request
-            InputStream i = get_result_data( url, data);
-            if (!error())
-                handler.parseXML( i);
-        } catch (IOException e) {
-            setError( ErrType.ERR_COMMUNICATION, e.getMessage());
-            e.printStackTrace();
-        } catch (CustomException e) {
-            throw e;
-        } catch (Exception e) { //all them  SAXException etc
-            setError( ErrType.ERR_SYSTEM, ""+e + "/" + e.getMessage());
-            e.printStackTrace();
-        }
-        if (debug>0 || error())
-            Log.d( "RESULT: " +error_type +": "+ (error() ? error_message
-                                                                    : "n="+funk.len( handler.many)) );
-        if (debug>1 && !error()) Log.d( "RESULT1: " +handler.one);
-        if (debug>1 && !error()) Log.d( "RESULTn: " +handler.many);
-        return handler;
-    }
+    public Result send_http_request( String url, Params data) throws IOException {
+        URL u = new URL( url);
+        return send_http_request( u, data);
+   }
 
 /*
     public
@@ -278,51 +219,92 @@ public class http {
         return out.toString();
     }
 
+    static public class BinData {
+        public byte[] data;
+        public int length;
+
+        boolean save2file( String localPathname) {
+            try {
+                File localFile = new File( localPathname);
+                //if (!localFile.exists())
+                BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream( localFile));
+                try {
+                    out.write( data, 0, length);
+                    return true;
+                } finally { out.close(); }
+            } catch (IOException e) {
+                //e.printStackTrace();
+            }
+            return false;
+        }
+    }
     public
-    Bitmap _getImage( String path, String name, String localPath ) {
+    BinData _getFile( String path, String name, String localPath, boolean plain_no_cookie) {
         String url = this.url.toString().replaceFirst( "/*$", "")
                         + "/" + path.replaceFirst( "/*$", "").replaceFirst( "^/*", "")
                         + "/" + name;
         try {
             URL u = new URL( url);
-            InputStream is;
-            int length;
+            Result r;
             //XXX should these go via cookies or not???
-            if ("plain-non-cookie" == null) {
+            if (plain_no_cookie) {
                 URLConnection conn = u.openConnection();
-                is = conn.getInputStream();
-                length = conn.getContentLength();
+                r = new Result();
+                r.data = conn.getInputStream();
+                r.length = conn.getContentLength();
             } else {
-                Result r = send_http_request( u, null);
+                r = send_http_request( u, null);
                 if (r == null)
                     throw new FileNotFoundException( url + " : "+ error_message);
-                is = r.data;
-                length = r.length;
             }
 
-            byte[] data = new byte[ length];
-            int numBytesRead = 0, offset = 0;
-            while ((numBytesRead = is.read( data, offset, length-offset)) != -1)
-                offset += numBytesRead;
+            BinData b = new BinData();
+            b.length = r.length;
+            b.data = r.readBinary();
+            if (b.data == null) return null;
 
             if (localPath != null)
-                try {
-                    File localFile = new File( localPath + name);
-                    //if (!localFile.exists())
-                    BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream( localFile));
-                    try {
-                        out.write( data,0,length);
-                    } finally { out.close(); }
-                } catch (IOException e) {
-                    //e.printStackTrace();
-                }
-            return BitmapFactory.decodeByteArray( data,0, length);
+                b.save2file( localPath + name);
+            return b;
 
-        } catch (IOException e) {
-            e.printStackTrace(); }
+        } catch (IOException e) { e.printStackTrace(); }
         return null;
     }
+/*
+    Bitmap _getImage( String path, String name, String localPath ) {
+        BinData b = _getFile( path, String name, String localPath, true );
+        if (b==null) return null;
+        return BitmapFactory.decodeByteArray( b.data,0, b.length);
+*/
 
+static public
+class Params {
+    LinkedHashMap< String, String> params = new LinkedHashMap();
+
+    public Params put( String key, String  value) { params.put( key, value); return this; }
+    public Params put( String key, boolean value) { return put( key, ""+value); }
+    public Params put( String key, int     value) { return put( key, ""+value); }
+
+    @Override public String toString() { return "Params/"+params; }
+
+    static public
+    boolean any( Params p) { return p != null && funk.any( p.params); }
+
+    public String encode_params() {
+        String x = "";
+        for (String key : params.keySet())
+            try {
+                if (funk.any(x)) x+="&";
+                x += key + "=" + URLEncoder.encode( params.get(key), "UTF-8");
+            } catch (Exception e) { e.printStackTrace(); }
+        return x;
+    }
+    public String encode_params_q() {
+        String r = encode_params();
+        if (funk.any(r)) return "?"+r;
+        return r;
+    }
+}
 
 } //http
 // vim:ts=4:sw=4:expandtab

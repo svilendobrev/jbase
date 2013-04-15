@@ -35,6 +35,9 @@ import android.util.TypedValue;
 import android.location.LocationManager;
 import android.location.Location;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 // Common ui functionalities
 public
 class Common {
@@ -350,6 +353,8 @@ void copyButtonStyle( Button from, Button to) {
 }
 */
 
+//non ui
+
     static public
     Location getLastKnownLocation_any( Context c) {
         LocationManager lm = (LocationManager)c.getSystemService( Context.LOCATION_SERVICE);
@@ -361,6 +366,16 @@ void copyButtonStyle( Button from, Button to) {
             if (l != null) break;
         }
         return l;
+    }
+
+    static public boolean hasNetworkAccess( Context c) {
+        ConnectivityManager network = (ConnectivityManager) c.getSystemService( Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = network.getActiveNetworkInfo();
+        return info != null && info.isConnected();
+    }
+
+    static public int getIntResource( Context c, int id) {
+        return (Integer)c.getResources().getInteger( id);
     }
 
 } // Common

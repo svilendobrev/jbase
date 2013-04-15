@@ -2,6 +2,7 @@ package com.svilendobrev.storage;
 
 import com.svilendobrev.jbase.funk;
 import com.svilendobrev.jbase.Log;
+import com.svilendobrev.storage.io.BinData;
 
 import java.net.URL;
 import java.net.URLConnection;
@@ -12,13 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 
-import java.io.File;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-
 import java.util.LinkedHashMap;
 
-import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
@@ -32,7 +28,6 @@ public class http {
     }
     static public class LoginRequiredException extends CustomException {} //RuntimeExceptions are not checked and don't have to be declared in method's declaration
 
-    public String url_s;
     public URL    url;
 
     public String cookie;
@@ -53,7 +48,7 @@ public class http {
     protected void setError( ErrType typ, String msg) { error_type = typ; error_message = msg; }
 
 
-    public http( String url) { this.url_s = url; }
+    public http()            { }
     public http( URL url)    { this.url = url; }
 
     public int getConnectTimeout_ms() { return 10*1000; }
@@ -68,19 +63,13 @@ public class http {
         public int code;
         public String message;
 
+        public boolean ok() { return code == HttpURLConnection.HTTP_OK; }
+
         public byte[] readBinary() {
             if (length<=0) return null;     //can be -1??? hmm
-            byte[] bdata = new byte[ length];
-            try {
-                int numBytesRead = 0, offset = 0;
-                while ((numBytesRead = data.read( bdata, offset, length-offset)) != -1)
-                    offset += numBytesRead;
-                return bdata;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
+            return io.readBinary( data, length);
         }
+        public String readText() { return io.read( data); }
     }
 
     public static class Request {
@@ -99,11 +88,9 @@ public class http {
             return new URL( redirectUrl);
         }
 
-        public
-        boolean ok() { return result.code == HttpURLConnection.HTTP_OK; }
+        public boolean ok() { return result.ok(); }
 
-        public
-        void send( URL url, Params data) throws IOException {
+        public void send( URL url, Params data) throws IOException {
             //data == null: GET; else POST
             if (debug>0 && url !=null)     Log.d( "REQUEST: " + url);
             if (debug>1 && Params.any(data)) Log.d( "REQUEST: " + data);
@@ -142,7 +129,7 @@ public class http {
                 }
 
                 if (debug>1) {  //consume the stream and replace with cache
-                    String s = read( r);
+                    String s = io.read( r);    //XXX HACK .. should be readBinary
                     Log.d( "RESPONSE: " + s);
                     if (s!=null)
                         r = new ByteArrayInputStream( s.getBytes() );
@@ -200,44 +187,6 @@ public class http {
     }
 */
 
-    public static
-    String read( InputStream is) {
-        char[] buffer = new char[0x10000];
-        StringBuilder out = new StringBuilder();
-        InputStreamReader in;
-        try {
-            in = new InputStreamReader(is, "UTF-8");
-        } catch (Exception e) { return null; }
-        try {
-            int read;
-            do {
-                read = in.read(buffer, 0, buffer.length);
-                if (read>0)
-                    out.append(buffer, 0, read);
-                } while (read>=0);
-        } catch (Exception e) { out.append( "\n!!!"+e ); }
-        return out.toString();
-    }
-
-    static public class BinData {
-        public byte[] data;
-        public int length;
-
-        boolean save2file( String localPathname) {
-            try {
-                File localFile = new File( localPathname);
-                //if (!localFile.exists())
-                BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream( localFile));
-                try {
-                    out.write( data, 0, length);
-                    return true;
-                } finally { out.close(); }
-            } catch (IOException e) {
-                //e.printStackTrace();
-            }
-            return false;
-        }
-    }
     public
     BinData _getFile( String path, String name, String localPath, boolean plain_no_cookie) {
         String url = this.url.toString().replaceFirst( "/*$", "")

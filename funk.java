@@ -95,13 +95,12 @@ static public <T>  T pop( List<T> x, int i, T defaults) {
     return a;
 }
 
-static public <T>  T last( List<T> x, T defaults) {
-    if (not(x)) return defaults;
-    return x.get( len(x)-1);
-}
 static public <T>  T get( List<T> x, int i) { return get( x,i,null); }
 static public <T>  T pop( List<T> x, int i) { return pop( x,i,null); }
-static public <T>  T last( List<T> x) { return last( x, null); }
+static public <T>  T pop( List<T> x, T defaults)    { return pop( x,-1,defaults); }
+static public <T>  T pop( List<T> x)                { return pop( x,-1,null); }
+static public <T>  T last( List<T> x, T defaults)   { return get( x,-1,defaults); }
+static public <T>  T last( List<T> x)               { return last( x, null); }
 
 static public <K,V>  V setdefault( Map<K,V> m, K key, V vdefault) {
     V v = m.get( key);

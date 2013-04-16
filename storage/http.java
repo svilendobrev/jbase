@@ -22,29 +22,28 @@ import java.net.MalformedURLException;
 //XXX help: http://stackoverflow.com/questions/2793150/how-to-use-java-net-urlconnection-to-fire-and-handle-http-requests
 
 public class http {
-    static public class CustomException extends RuntimeException {
+    static public class CustomException extends RuntimeException {  //RuntimeExceptions are not checked and don't have to be declared in method's declaration
         public CustomException() { super(); }
         public CustomException( String msg) { super(msg); }
     }
-    static public class LoginRequiredException extends CustomException {} //RuntimeExceptions are not checked and don't have to be declared in method's declaration
 
     public URL    url;
-
     public String cookie;
 
     public int debug = 1;
 
     //err-handling; see struct Error@STC/bmcs/client/transaction/getreply.h
     public enum ErrType {
-        OK,
+        OK,         //at least on known level
         ERR_USER,   //comm ok, server ok, req-data wrong
-        ERR_SYSTEM, //comm ok, server or protocol not ok
-        ERR_COMMUNICATION,
+        ERR_SYSTEM, //comm ok, server or protocol or client not ok
+        ERR_COMMUNICATION
+        //ERR_URL     //wrong url - comm didnt start.. kind of ERR_COMMUNICATION
     };
     public ErrType  error_type;
     public String   error_message;
-    public boolean  error() { return error_type != ErrType.OK; }
-    protected void setError() { setError( ErrType.OK, ""); }
+    public boolean  error()     { return error_type != ErrType.OK; }
+    protected void setError()   { setError( ErrType.OK, null); }
     protected void setError( ErrType typ, String msg) { error_type = typ; error_message = msg; }
 
 
@@ -61,7 +60,7 @@ public class http {
         public InputStream data;
         public int length;
         public int code;
-        public String message;
+        public String message;  //error
 
         public boolean ok() { return code == HttpURLConnection.HTTP_OK; }
 
@@ -88,7 +87,7 @@ public class http {
             return new URL( redirectUrl);
         }
 
-        public boolean ok() { return result.ok(); }
+        public boolean ok() { return result != null && result.ok(); }
 
         public void send( URL url, Params data) throws IOException {
             //data == null: GET; else POST
@@ -102,7 +101,10 @@ public class http {
                 conn.setConnectTimeout( timeout_ms);
                 conn.setReadTimeout( timeout_ms);
                 conn.setInstanceFollowRedirects( followRedirects);
-                if (data != null) conn.setDoOutput( true);    //triggers POST
+                if (data != null) {
+                    conn.setDoOutput( true);    //triggers POST
+                    conn.setRequestMethod( "POST");
+                }
                 if (Params.any( data)) {
                     String x = data.encode_params();
                     if (debug>2) Log.d( "REQUEST.out: " + x);
@@ -113,8 +115,17 @@ public class http {
                         out.flush();
                     } finally { out.close(); }
                 }
+
+                //throws java.io.IOException: Received authentication challenge is null  on 401 if
+                //http://stackoverflow.com/questions/10431202/java-io-ioexception-received-authentication-challenge-is-null
+                int code;
+                try {
+                    code = conn.getResponseCode();        //trigers connect() etc
+                } catch (IOException e) {
+                    code = conn.getResponseCode();        //repeat..
+                }
                 result = new Result();
-                result.code = conn.getResponseCode();        //trigers connect() etc
+                result.code = code;
                 redirectUrl = conn.getHeaderField( "location");
                 if (funk.not( redirectUrl)) redirectUrl = conn.getHeaderField( "uri");
                 result.cookie = conn.getHeaderField( "Set-Cookie");
@@ -143,30 +154,45 @@ public class http {
     //override if other Request
     public Request _request() { return new Request(); }
 
-    public Result send_http_request( URL url, Params data) throws IOException {
+    public Result send_http_request( URL url, Params data) {
+        setError();
         if (debug>0 && url !=null) Log.d( "RREQUEST: " + url);
         if (url == null) url = this.url;
         Request r = _request();
         r.debug = debug;
         r.timeout_ms = getConnectTimeout_ms();
         r.cookie = cookie;
-        r.send( url, data );
+        try {
+            r.send( url, data );
+        } catch (IOException e) {
+            e.printStackTrace();
+            setError( ErrType.ERR_COMMUNICATION, "comm error: " + url + (r.result != null ? "res="+r.result.code : "noresult") + "\n" + e);
+            return null;
+        }
         if (r.ok()) {
             if (cookie != r.cookie) {
                 cookie = r.cookie;
                 saveAuthentication();
             }
             //XXX how this works if conn already closed() XXX
-            return r.result;
+            //so far so good.. though consuming InputStream can break
+        } else {
+            String err = "response code: " + r.result.code + "\n message: " + r.result.message;
+            setError( ErrType.ERR_SYSTEM, "HTTP error: " + url + "\n" + err );
         }
-        String err = "response code: " + r.result.code + "\n message: " + r.result.message;
-        setError( ErrType.ERR_COMMUNICATION, "HTTP error: " + url + "\n" + err );
-        return null;
+        return r.result;
     }
-    public Result send_http_request( String url, Params data) throws IOException {
-        URL u = new URL( url);
+    public Result send_http_request( String url, Params data) {
+        URL u = null;
+        try {
+            u = new URL( url);
+        } catch (IOException e) {
+            e.printStackTrace();
+            setError( ErrType.ERR_COMMUNICATION, "url error:" + url + "\n" + e );
+            return null;
+        }
         return send_http_request( u, data);
-   }
+    }
 
 /*
     public

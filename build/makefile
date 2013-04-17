@@ -81,7 +81,7 @@ build: mymanifest
 	rm -rf src_
 	#cd src; for a in `find -L ./ -name \*.java -exec dirname {} \; | sort | uniq`; do  mkdir -p ../src_/$$a; ln $$a/*.java ../src_/$$a; done
 	#cp -rl src src_; find -L src_ -not -name \*.java -a -not -type d -a -exec rm {} \;
-	-$(SYMLINKER) --op=link --inc='*.java' $(SRC_EXCLUDE:%=--exc='%') $(SRC) $(SRC_)
+	-$(SYMLINKER) --op=link --inc='*.java' --inc='*.properties' $(SRC_EXCLUDE:%=--exc='%') $(SRC) $(SRC_)
 	#cd src_; rm -f $(SRC_EXCLUDE)
 	ant $(ANTFLAGS) $(if $(NODEPS),nodeps) $(REL)
 

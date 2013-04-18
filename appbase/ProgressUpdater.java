@@ -22,11 +22,14 @@ abstract public class ProgressUpdater {
         if (offset<=cur) offset_to_current();
     }
 
-    public boolean stopped() {
+    static public boolean stopped() {
         synchronized (mutex) {
             return mutex.progressCancelled;
-        }
-    }
+    } }
+    static public void cancel() {
+        synchronized (mutex) {
+            mutex.progressCancelled = true;
+    } }
     //show as percent (0..100)
     public void update( int percent ) {
         update( percent, MAX); }

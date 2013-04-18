@@ -48,10 +48,10 @@ class Prefs implements SharedPreferences.OnSharedPreferenceChangeListener {
         prefs = PreferenceManager.getDefaultSharedPreferences( context);
     }
 
-    public Object get( int id)      { return _defs.get( id).value(); }
-    public Object get( String key)  { return _defs4key.get( key).value(); }
-    public Pref getPref( int id)      { return _defs.get( id); }
-    public Pref getPref( String key)  { return _defs4key.get( key); }
+    public Object get( int id)          { return _defs.get( id).value(); }
+    public Object get( String key)      { return _defs4key.get( key).value(); }
+    public Pref getPref( int id)        { return _defs.get( id); }
+    public Pref getPref( String key)    { return _defs4key.get( key); }
 
     public void set( int id, Object v) {
         v = _defs.get( id ).set( v);
@@ -60,7 +60,8 @@ class Prefs implements SharedPreferences.OnSharedPreferenceChangeListener {
     }
     private void _setDirect( String key, Object v) {
         SharedPreferences.Editor e = prefs.edit();
-        funk.assertTrue( v != null);
+        if (v == null) e.remove( key);
+        else
         if (v instanceof Boolean) e.putBoolean( key, (Boolean) v);
         else
         if (v instanceof Integer) e.putInt( key, (Integer) v);

@@ -56,6 +56,7 @@ abstract public class ProgressUpdater {
     }
 
     abstract public void _update( int value, int max);
+    public void update( String message) {}  //do override
 }
 
 // vim:ts=4:sw=4:expandtab

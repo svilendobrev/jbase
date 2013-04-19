@@ -191,12 +191,18 @@ To re-show (e.g. because validate), store it and send a message:
     void dlgRename( Context a, String kind, String oldname, final ok2 okker ) {
         _dlgEdit( a, "Rename " + kind, "Enter name:", okker, oldname, null); }
     static public
-    Builder _dlgOkCancel( Context a, String title, String message, final ok okker ) {
+    Builder _dlgOk( Context a, String title, String message, final ok okker ) {
         return new Builder( a)
         .setTitle( title)
         .setMessage( message)
-        .setPositiveButton( "Ok", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
-                okker.ok(); }})
+        .setPositiveButton( "Ok", okker==null ? null :
+            new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
+                okker.ok(); }}
+            );
+    }
+    static public
+    Builder _dlgOkCancel( Context a, String title, String message, final ok okker ) {
+        return _dlgOk( a, title, message, okker )
         .setNegativeButton( "Cancel", null);
     }
     static public

@@ -49,7 +49,6 @@ import com.couchbase.touchdb.TDServer;
 import com.couchbase.touchdb.ektorp.TouchDBHttpClient;
 import com.couchbase.touchdb.router.TDURLStreamHandlerFactory;
 
-import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.content.Context;
@@ -138,7 +137,7 @@ class touchdb {
                 onDatabasesOK();
                 startReplications();
                 Log.v( TAG, "startedOK");
-                onStartedOK();
+                onStartedAllOK();
             }
         }).execute();
     }
@@ -165,36 +164,28 @@ class touchdb {
         server = null;
     }
 
-    protected abstract
-    Context ctx(); // { return null; }   //XXX do override
+    protected
+    abstract Context ctx(); // { return null; }  //XXX do override
 
-    public abstract
-    void installViewDefinitions();     //XXX do override
+    public
+    abstract void installViewDefinitions();      //XXX do override
         //Log.e( TAG, "call genViews4Touchdb.views", server, "version", dbname2open );
 
-    public
-    static String _DEFAULT_dburl = "";
-    public
-    String DEFAULT_dburl() { return _DEFAULT_dburl; }    //XXX do override
-
-    public
-    static String _SYNC_URL_pref = "sync_url";
-    public
-    String SYNC_URL() {                     //XXX override if needed
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences( ctx());
-        return prefs.getString( _SYNC_URL_pref, DEFAULT_dburl() );
+    public static String _DEFAULT_dburl = "";
+    public String DEFAULT_dburl() { return _DEFAULT_dburl; }    //XXX do override
+    public static String _SYNC_URL_pref = "sync_url";
+    public String SYNC_URL() {                     //XXX override if needed
+        return PreferenceManager.getDefaultSharedPreferences( ctx()).getString( _SYNC_URL_pref, DEFAULT_dburl() );
     }
 
     protected   boolean _isDatabaseOK = false;
     public      boolean isDatabaseOK() { return _isDatabaseOK; }
     protected
-    void onDatabasesOK() {}                 //XXX do override
+    void onDatabasesOK() {}             //XXX do override
         //Log.d( TAG, "onDatabasesOK - attach adapters to the list etc");
-        /*
-        itemListView.setAdapter( makeAdapter( dbname, viewQuery) );
-        */
+        // itemListView.setAdapter( makeAdapter( dbname, viewQuery) );
     protected
-    void onStartedOK() {}                 //XXX do override
+    void onStartedAllOK() {}            //XXX do override
 
 
     static

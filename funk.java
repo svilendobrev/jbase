@@ -121,9 +121,8 @@ static public <K,V>  V setdefault( Map<K,V> m, K key, Class vdef) {
 */
 static public <K,V>  V get( Map<K,V> m, K key, V vdefault) {
     if (not(m)) return vdefault;
-    V v = m.get( key);
-    if (v==null) return vdefault;
-    return v;
+    if (!m.containsKey( key)) return vdefault;
+    return m.get( key);
 }
 
 

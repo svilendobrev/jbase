@@ -265,6 +265,7 @@ class Params {
     static public
     boolean any( Params p) { return p != null && funk.any( p.params); }
 
+    //XXX beware: URLEncoder is by html forms, not by URL spec
     public String encode_params() {
         String x = "";
         for (String key : params.keySet())

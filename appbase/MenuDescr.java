@@ -16,6 +16,25 @@ import java.util.HashMap;
 public
 class MenuDescr {
 
+static public
+class MenuItemInfo {
+    public MenuItem item;
+    public ContextMenu.ContextMenuInfo info;    //null for non-ContextMenu i.e. options ; maybe null for ContextMenu too
+
+    public MenuItemInfo( MenuItem item, ContextMenu.ContextMenuInfo info) { this.item = item; this.info = info; }
+}
+
+static public
+interface MenuUpdater {
+    public void update( MenuItemInfo item);
+}
+static public abstract
+class MenuHandler implements MenuUpdater
+{
+    abstract public void handle( MenuItemInfo item) ;
+    public void update( MenuItemInfo item) {}
+}
+
 public static
 class D {
     public Class<? extends Activity> activityClass;  // the child activity to start
@@ -60,26 +79,6 @@ class D {
     }
 } //D
 
-static public
-class MenuItemInfo {
-    public MenuItem item;
-    public ContextMenu.ContextMenuInfo info;    //null for non-ContextMenu i.e. options ; maybe null for ContextMenu too
-
-    public MenuItemInfo( MenuItem item, ContextMenu.ContextMenuInfo info) {
-        this.item = item;
-        this.info = info;
-    }
-}
-
-static public
-interface MenuUpdater {
-    public void update( MenuItemInfo item);
-}
-public static
-interface MenuHandler {
-    public void handle( MenuItemInfo item);
-}
-
 
     public HashMap< Integer, D> descr = new HashMap();
     public int resId;
@@ -108,7 +107,7 @@ interface MenuHandler {
         return put( id, new D( activityClass));
     }
     public D put( int id, MenuHandler menuHandler) {
-        return put( id, new D( menuHandler));
+        return put( id, new D( menuHandler, menuHandler));
     }
     public D put( int id, MenuHandler menuHandler, MenuUpdater updater) {
         return put( id, new D( menuHandler, updater));

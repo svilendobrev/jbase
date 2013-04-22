@@ -74,9 +74,7 @@ class Prefs implements SharedPreferences.OnSharedPreferenceChangeListener {
     }
 
     public void del( int id) {
-        SharedPreferences.Editor e = prefs.edit();
-        e.remove( context.getString( id ));
-        e.commit();
+        set( id, null);
     }
 
     public void delAll() {
@@ -154,7 +152,10 @@ class Pref {
     public void onChange() {}
     public Object value()  { return _value; }               //convert or whatever
     public Object default_value()  { return _default_value; }  //convert or whatever
-    public Object set( Object v) { _value =v; return v; }  //convert or whatever
+    public Object set( Object v) {
+        if (v == null) v = _default_value;
+        _value = v;
+        return v; }  //convert or whatever
 
     protected
     Pref( int id) {

@@ -139,9 +139,13 @@ putdb:
 	adb push myepg.db /data/data/$(APP)/$(DB)/
 
 catpref:
-	adb -e shell cat /data/data/$(APP)/sh*/com*
-rmpref:
-	adb -e shell rm /data/data/$(APP)/sh*/com*
+	adb -e shell cat /data/data/$(APP)/sh*/*
+rmpref delpref:
+	adb -e shell rm /data/data/$(APP)/sh*/*
+putpref:
+	adb -e push $(APP)_preferences.xml /data/data/$(APP)/shared_prefs/
+getpref:
+	adb -e pull /data/data/$(APP)/shared_prefs/$(APP)_preferences.xml .
 
 log:
 	adb -e logcat $(ARGS)

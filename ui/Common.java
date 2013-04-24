@@ -128,6 +128,12 @@ void setText( View context, int id, CharSequence text) {
     View v = context.findViewById( id);
     ((TextView) v).setText( text);
 }
+static public
+void setText( View context, int id, int text) {
+    funk.assertTrue( id !=0);
+    View v = context.findViewById( id);
+    ((TextView) v).setText( text);
+}
 
 static public
 String getText( EditText ev) {
@@ -188,27 +194,36 @@ To re-show (e.g. because validate), store it and send a message:
         .setMessage( message)
         .setView( input)
         .setPositiveButton( "Ok", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
-                //hideKeyboard( a, input);
+                hideKeyboard( a, input);
                 okker.ok( input.getText().toString(), input );
                 }})
         //.setOnCancelListener( new DialogInterface.OnCancelListener() { @Override public void onCancel( DialogInterface dialog) {
         //    }})
         .setNegativeButton( "Cancel", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
-                //hideKeyboard( a, input);
+                hideKeyboard( a, input);
                 okker.cancel( input ); } })
         //null )
         ;
         b.create().show();
     }
+    static public
+    void _dlgEdit( final Context a, String title, String message, final ok2 okker, String text)         { _dlgEdit( a, title, message, okker, text, null); }
+    static public
+    void _dlgEdit( final Context a, String title, String message, final ok2 okker, Integer input_type)  { _dlgEdit( a, title, message, okker, null, input_type); }
+    static public
+    void _dlgEdit( final Context a, String title, String message, final ok2 okker)  { _dlgEdit( a, title, message, okker, null, null); }
     //static public
     //void z_dlgEdit( Context a, String title, final ok okker, String text) {
     //    _dlgEdit( a, title, okker, text, "Enter name:") }
     static public
     void dlgAdd( Context a, String kind, final ok2 okker ) {
-        _dlgEdit( a, "Add new " + kind, "Enter name:", okker, "", null); }
+        _dlgEdit( a, "Add new " + kind, "Enter name:", okker ); }
     static public
-    void dlgRename( Context a, String kind, String oldname, final ok2 okker ) {
-        _dlgEdit( a, "Rename " + kind, "Enter name:", okker, oldname, null); }
+    void dlgRename( Context a, String kind, String oldname, final ok2 okker, Integer input_type ) {
+        _dlgEdit( a, "Rename " + kind, "Enter name:", okker, oldname, input_type); }
+    static public
+    void dlgRename( Context a, String kind, String oldname, final ok2 okker) { dlgRename( a, kind, oldname, okker, null); }
+
     static public
     Builder _dlgOk( Context a, String title, String message, final ok okker ) {
         return new Builder( a)

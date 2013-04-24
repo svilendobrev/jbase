@@ -87,7 +87,7 @@ View[] getSubViews( View[] vs, int id) {
     return nv;
 }
 
-/////// textable/clickable
+/////// clickable
 
 // use like   Common.setOnClick( this, R.id.butt, new View.OnClickListener() { @Override public void onClick( View v) {
 static public
@@ -102,6 +102,25 @@ View setOnClick( View context, int id, View.OnClickListener l ) {
     View v = context.findViewById( id);
     v.setOnClickListener( l ); return v;
 }
+
+// use like   new Common.OnClick( this, R.id.butt ) { @Override public void onClick( View v) {
+abstract static public
+class OnClick implements View.OnClickListener {
+    //public void onClick( View v) {
+    public OnClick( View v ) { v.setOnClickListener( this); }
+    public OnClick( Activity context, int id) {
+        funk.assertTrue( id !=0);
+        View v = context.findViewById( id);
+        v.setOnClickListener( this);
+    }
+    public OnClick( View context, int id) {
+        funk.assertTrue( id !=0);
+        View v = context.findViewById( id);
+        v.setOnClickListener( this);
+    }
+}
+
+/////// textable
 
 static public
 void setText( View context, int id, CharSequence text) {

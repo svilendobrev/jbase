@@ -259,6 +259,7 @@ class Params {
     public Params put( String key, String  value) { params.put( key, value); return this; }
     public Params put( String key, boolean value) { return put( key, ""+value); }
     public Params put( String key, int     value) { return put( key, ""+value); }
+    public Params put_if_any( String key, String value) { if (funk.any( value)) put( key, value); return this; }
 
     @Override public String toString() { return "Params/"+params; }
 

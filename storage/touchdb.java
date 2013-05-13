@@ -475,9 +475,12 @@ class touchdb {
     static public Boolean db2bool(   JsonNode a, boolean _default) { return a == null ? _default : a.booleanValue(); }
 
     static public boolean db_is_null( JsonNode a) { return a == null || a.isMissingNode() || a.isNull(); }
+    static public boolean db_is_array(  JsonNode a) { return a!=null && a.isArray()  && (a instanceof ArrayNode) ; }
+    static public boolean db_is_object( JsonNode a) { return a!=null && a.isObject() && (a instanceof ObjectNode) ; }
 
     static public HashMap< String, ArrayList< String>> db2map_str_list_str( JsonNode a) {
-        if (db_is_null(a)) return null;
+        //if (db_is_null(a)) return null;
+        if (!db_is_object(a)) return null;
         HashMap< String, ArrayList< String>> rmap = new HashMap();
         Iterator< Map.Entry< String, JsonNode>> entries = ((ObjectNode)a).fields();
         //Log.d( TAG, "db2map_str_list_str " + ": " + a);

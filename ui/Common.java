@@ -195,7 +195,7 @@ To re-show (e.g. because validate), store it and send a message:
         .setView( input)
         .setPositiveButton( "Ok", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
                 hideKeyboard( a, input);
-                okker.ok( input.getText().toString(), input );
+                okker.ok( input.getText().toString().trim(), input );
                 }})
         //.setOnCancelListener( new DialogInterface.OnCancelListener() { @Override public void onCancel( DialogInterface dialog) {
         //    }})

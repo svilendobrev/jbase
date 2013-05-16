@@ -239,14 +239,14 @@ static public boolean le( String a, String b) { return a.compareTo(b) <=0; }
 static public boolean ge( String a, String b) { return a.compareTo(b) >=0; }
 
 static public boolean eq( Date a, Date b)   { return a.equals(b); }
-static public boolean ne( Date a, Date b)   { return !a.equals(b); }
+static public boolean ne( Date a, Date b)   { return !eq(a,b); }
 static public boolean lt( Date a, Date b)   { return a.before(b); }
 static public boolean gt( Date a, Date b)   { return a.after(b); }
 static public boolean le( Date a, Date b)   { return !a.after(b); }
 static public boolean ge( Date a, Date b)   { return !a.before(b); }
 
-static public boolean eq( Calendar a, Calendar b)   { return eq( a.getTime(), b.getTime()); }
-static public boolean ne( Calendar a, Calendar b)   { return ne( a.getTime(), b.getTime()); }
+static public boolean eq( Calendar a, Calendar b)   { return a==null && b==null || a!=null && b!=null && eq( a.getTime(), b.getTime()); }
+static public boolean ne( Calendar a, Calendar b)   { return !eq(a,b); }
 static public boolean lt( Calendar a, Calendar b)   { return lt( a.getTime(), b.getTime()); }
 static public boolean gt( Calendar a, Calendar b)   { return gt( a.getTime(), b.getTime()); }
 static public boolean le( Calendar a, Calendar b)   { return le( a.getTime(), b.getTime()); }

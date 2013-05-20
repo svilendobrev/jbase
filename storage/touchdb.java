@@ -40,6 +40,11 @@ import org.ektorp.android.util.CouchbaseViewListAdapter;
 import org.ektorp.DbAccessException;
 import org.ektorp.android.util.EktorpAsyncTask;
 
+import org.ektorp.changes.DocumentChange;
+import org.ektorp.changes.ChangesCommand;
+import org.ektorp.android.util.ChangesFeedAsyncTask;
+
+
 import org.ektorp.support.CouchDbRepositorySupport;
 //import org.ektorp.support.DesignDocument;
 
@@ -102,12 +107,12 @@ class touchdb {
 
     public
     void open() {
-        Log.v( TAG, "startDb");
+        debug( "startDb");
 
         String filesDir = ctx().getFilesDir().getAbsolutePath();
         try {
             server = new TDServer( filesDir);
-        } catch (IOException e) { Log.e(TAG, "Error starting TDServer", e); }
+        } catch (IOException e) { Log.e( TAG, "Error starting TDServer", e); }
         if (server == null) return;
 
         databases.clear();
@@ -115,10 +120,10 @@ class touchdb {
         dbname2view2value_is_doc.clear();
         dbname2open.clear();
 
-        Log.v( TAG, "installViewDefinitions");
+        debug( "installViewDefinitions");
         installViewDefinitions();
 
-        Log.v( TAG, "starting ektorp");
+        debug( "starting ektorp");
         if (httpClient != null) httpClient.shutdown();
 
         httpClient = new TouchDBHttpClient( server);
@@ -128,15 +133,15 @@ class touchdb {
             @Override protected void doInBackground() {
                 for (String dbname : dbname2open.keySet()) {
                     databases.put( dbname, dbInstance.createConnector( dbname, true));
-                    Log.v( TAG, "opened " + dbname);
+                    debug( "opened " + dbname);
                 }
             }
             @Override protected void onSuccess() {
-                Log.v( TAG, "databasesOK");
+                debug( "databasesOK");
                 _isDatabaseOK = true;
                 onDatabasesOK();
                 startReplications();
-                Log.v( TAG, "startedOK");
+                debug( "startedOK");
                 onStartedAllOK();
             }
         }).execute();
@@ -144,7 +149,7 @@ class touchdb {
 
     public
     void close() {
-        Log.v( TAG, "stopDB");
+        debug( "stopDB");
         _isDatabaseOK = false;
 
         //stop the async tasks that follow the changes feed
@@ -182,7 +187,7 @@ class touchdb {
     public      boolean isDatabaseOK() { return _isDatabaseOK; }
     protected
     void onDatabasesOK() {}             //XXX do override
-        //Log.d( TAG, "onDatabasesOK - attach adapters to the list etc");
+        //debug( "onDatabasesOK - attach adapters to the list etc");
         // itemListView.setAdapter( makeAdapter( dbname, viewQuery) );
     protected
     void onStartedAllOK() {}            //XXX do override
@@ -210,7 +215,7 @@ class touchdb {
 
     public
     void startReplications() {
-        Log.v( TAG, "startReplications");
+        debug( "startReplications");
         String sync_url = SYNC_URL();
         for (String dbname : dbname2open.keySet()) startReplication( dbname, sync_url);
     }
@@ -231,7 +236,7 @@ class touchdb {
         if (db != null) return db;
         db = dbInstance.createConnector( dbname, true);
         databases.put( dbname, db);
-        Log.v( TAG, "opened " + dbname);
+        debug( "opened " + dbname);
         startReplication( dbname );
         return db;
     }
@@ -342,7 +347,7 @@ class touchdb {
 
     void _startReplication( String dbname, String sync_url) {
 
-        Log.v( TAG, "startReplication push " +dbname + " > " + sync_url);
+        debug( "startReplication push " +dbname + " > " + sync_url);
         final ReplicationCommand pushReplicationCommand = new ReplicationCommand.Builder()
             .source( dbname)
             .target( sync_url)
@@ -352,7 +357,7 @@ class touchdb {
             @Override protected void doInBackground() { dbInstance.replicate( pushReplicationCommand); }
         }).execute();
 
-        Log.v( TAG, "startReplication pull " +dbname + " < " + sync_url);
+        debug( "startReplication pull " +dbname + " < " + sync_url);
         final ReplicationCommand pullReplicationCommand = new ReplicationCommand.Builder()
             .source( sync_url)
             .target( dbname)
@@ -388,7 +393,7 @@ class touchdb {
         Object _item;
         String op;
         public AsyncTask4dbitem( Object item, String op) { this._item = item; this.op = op; }
-        @Override protected void onSuccess() { Log.d( TAG, "Document " + op + " ok"); }
+        @Override protected void onSuccess() { debug( "Document " + op + " ok"); }
         @Override protected void onUpdateConflict( UpdateConflictException updateConflictException) {
             Log.i( TAG, "conflict " + op + ": " + _item.toString());
         }
@@ -483,7 +488,7 @@ class touchdb {
         if (!db_is_object(a)) return null;
         HashMap< String, ArrayList< String>> rmap = new HashMap();
         Iterator< Map.Entry< String, JsonNode>> entries = ((ObjectNode)a).fields();
-        //Log.d( TAG, "db2map_str_list_str " + ": " + a);
+        //debug( "db2map_str_list_str " + ": " + a);
         while (entries.hasNext()) {
             Map.Entry< String, JsonNode> entry = entries.next();
             ArrayList< String> ra = null;
@@ -596,7 +601,7 @@ class touchdb {
             if (r==null) r = new ArrayList();
             for (ViewResult.Row x: vr.getRows()) {
                 JsonNode d = row2doc( x, use_value, with_deleted);
-                if (_debug>0) Log.d( TAG, "load_org /"+use_value +":" + x.getValueAsNode() + " >>"+ d + "/"+(d==null?null: (d.isNull() || d.isMissingNode() )) );
+                if (_debug>0) debug( "load_org /"+use_value +":" + x.getValueAsNode() + " >>"+ d + "/"+(d==null?null: (d.isNull() || d.isMissingNode() )) );
                 if (d!=null)
                     r.add( (T)load( d));
             }
@@ -620,6 +625,83 @@ class touchdb {
     //public void update( Model x, String dbname, boolean async ) { update( dbname, x, async); }
     //public void delete( Model x, String dbname, boolean async ) { delete( dbname, x, async); }
 
+    static public
+    class ChangesDispatcher {
+    //setup all views
+    //fire them once.
+    //  for each, store lastUpd = min viewResult.getUpdateSeq()...
+    //  if single-docs not-a-view : lastUpd =null;
+    //attach listeners to ChangesTask
+    //start ChangesTask( lastUpd)
+    //for deleting: each listener has to know which id's are his. so react if deleted some matching id. no in-the-doc filters
+
+        static public
+        abstract class Listener {
+            public Long lastUpdateSequence; //null means always handleChange AND ignore in min_lastUpd
+                                            // -1  means always handleChange AND changes should start from -1
+            public abstract boolean has_id( String id ) ;
+            public abstract void    delete( String id ) ;
+            public abstract boolean handleChange( String id, JsonNode doc) ;
+
+            public boolean handleChange( String id, JsonNode doc, boolean deleted, long sequence ) {
+                debug( "handleChange "+id + " " + (deleted?"del":"") + " " + sequence + " "+this);
+                if (lastUpdateSequence != null && sequence <= lastUpdateSequence) return false;
+                if (!deleted) return handleChange( id, doc );//== null ? null : (ObjectNode)doc);
+                if (!has_id( id)) return false;
+                delete( id);
+                return true;
+            }
+        }
+
+        public long lastUpdateSequence = -1;    //runtime
+        public ArrayList< Listener> listeners = new ArrayList();
+
+        public Long min_lastUpdateSequence() {
+            Long r = null;
+            for (Listener l: listeners)
+                if (l.lastUpdateSequence != null && (r==null || r > l.lastUpdateSequence))
+                    r = l.lastUpdateSequence;
+            return r;
+        }
+
+        ChangesTask task;
+        String dbname;
+        public void start( CouchDbConnector cdb, boolean includeDocs, Long since) {
+            if (task != null) return;
+            ChangesCommand.Builder cmd = new ChangesCommand.Builder()
+                    .continuous( true)
+                    .heartbeat( 5000)    //ms
+                    .includeDocs( includeDocs)
+                    ;
+            if (since != null && since>=0) cmd.since( since);
+            task = new ChangesTask( cdb, cmd.build(), this);
+            dbname = cdb.getDatabaseName();
+            debug( "start "+task + " "+ dbname + " "+since);
+            task.execute();
+        }
+        public void stop() {
+            if (task == null) return;
+            debug( "stop "+this + " "+ dbname );
+            task.cancel( true);
+            task = null;
+        }
+    }
+    static
+    class ChangesTask extends ChangesFeedAsyncTask {
+        ChangesDispatcher data;
+        public ChangesTask( CouchDbConnector cdb, ChangesCommand cmd, ChangesDispatcher data) {
+            super( cdb, cmd );
+            this.data = data;
+        }
+        @Override protected void handleDocumentChange( DocumentChange c) {  //dispatch to first wishing
+            data.lastUpdateSequence = c.getSequence();
+            debug( "handleDocumentChange "+c.getId()+ " "+this);
+            for (ChangesDispatcher.Listener l: data.listeners)
+                if (l.handleChange( c.getId(), c.getDocAsNode(), c.isDeleted(), data.lastUpdateSequence ))
+                    break;
+        }
+        //@Override protected void onDbAccessException( DbAccessException e) { handleChangesAsyncTaskDbAccessException( e); }
+    }
 
     ////////// app specific XXX - inherit then whatever /////////
 /*  //as in jbase.sqlite:
@@ -679,5 +761,6 @@ class touchdb {
     use ViewResult, then for each, mapper.convertValue( node, target.class) - unclear how much slower this is
 */
 
-} //dbtouch
+    static protected void debug( String s) { Log.d( TAG, s); }
+} //touchdb
 // vim:ts=4:sw=4:expandtab

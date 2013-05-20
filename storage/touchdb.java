@@ -243,6 +243,14 @@ class touchdb {
 
 /////////////
 
+    public
+    ObjectNode get( String dbname, String id ) {
+        CouchDbConnector c = databases.get( dbname );
+        try { return c.get( ObjectNode.class, id);
+        } catch (org.ektorp.DocumentNotFoundException e) { return null; }
+    }
+
+
     static public ViewQuery
     query2( String design_doc, String view_name) {
         return new ViewQuery().designDocId( "_design/"+design_doc ).viewName( view_name);
@@ -636,22 +644,56 @@ class touchdb {
     //for deleting: each listener has to know which id's are his. so react if deleted some matching id. no in-the-doc filters
 
         static public
-        abstract class Listener {
+        abstract class Listener {   //autoupdating cache
             public Long lastUpdateSequence; //null means always handleChange AND ignore in min_lastUpd
                                             // -1  means always handleChange AND changes should start from -1
             public abstract boolean has_id( String id ) ;
             public abstract void    delete( String id ) ;
-            public abstract boolean handleChange( String id, JsonNode doc) ;
+            public abstract boolean handleChange( String id, ObjectNode doc) ;
 
             public boolean handleChange( String id, JsonNode doc, boolean deleted, long sequence ) {
                 debug( "handleChange "+id + " " + (deleted?"del":"") + " " + sequence + " "+this);
                 if (lastUpdateSequence != null && sequence <= lastUpdateSequence) return false;
-                if (!deleted) return handleChange( id, doc );//== null ? null : (ObjectNode)doc);
+                if (!deleted) return handleChange( id, null==doc ? null : (ObjectNode)doc);
                 if (!has_id( id)) return false;
                 delete( id);
                 return true;
             }
+
+
+            public ArrayList< Runnable> listeners = new ArrayList();
+            public void notifyDataSetChanged() {
+                debug( "notifyDataSetChanged "+this + " " + funk.len( listeners));
+                for (Runnable r: listeners) r.run();
+            }
         }
+
+        static public
+        abstract class Listener4doc extends Listener { //autoupdating cache of 1 doc
+            abstract public void load( ObjectNode doc) ;
+            abstract public void clear() ;
+
+            //public boolean has_id( String id ) { return funk.eq( _id, id); }
+
+            public void delete( String id ) {
+                //funk.assertTrue( has_id( id));
+                clear();
+                notifyDataSetChanged();
+            }
+            public boolean handleChange( String id, ObjectNode doc) {
+                if (!has_id( id)) return false;
+                load( doc);
+                notifyDataSetChanged();
+                return true;
+            }
+            public void init( ObjectNode doc) {   //these can be async
+                load( doc);
+                lastUpdateSequence = null; //handle all that happen
+                debug( "init "+this);
+            }
+        }
+
+
 
         public long lastUpdateSequence = -1;    //runtime
         public ArrayList< Listener> listeners = new ArrayList();

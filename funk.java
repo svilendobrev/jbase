@@ -94,13 +94,24 @@ static public <T>  T pop( List<T> x, int i, T defaults) {
     x.remove(i);
     return a;
 }
-
-static public <T>  T get( List<T> x, int i) { return get( x,i,null); }
-static public <T>  T pop( List<T> x, int i) { return pop( x,i,null); }
+static public <T>  T get( List<T> x, int i)         { return get( x,i,null); }
+static public <T>  T pop( List<T> x, int i)         { return pop( x,i,null); }
 static public <T>  T pop( List<T> x, T defaults)    { return pop( x,-1,defaults); }
 static public <T>  T pop( List<T> x)                { return pop( x,-1,null); }
 static public <T>  T last( List<T> x, T defaults)   { return get( x,-1,defaults); }
 static public <T>  T last( List<T> x)               { return last( x, null); }
+
+
+static public <T>  T get( T[] x, int i, T defaults) {
+    if (not(x)) return defaults;
+    if (i<0) i+= len(x);
+    if (i<0 || i>= len(x)) return defaults;
+    return x[i];
+}
+static public <T>  T get( T[] x, int i)         { return get( x,i,null); }
+static public <T>  T last( T[] x, T defaults)   { return get( x,-1,defaults); }
+static public <T>  T last( T[] x)               { return last( x, null); }
+
 
 static public <K,V>  V setdefault( Map<K,V> m, K key, V vdefault) {
     V v = m.get( key);
@@ -232,6 +243,7 @@ static public int cmpnull( Date a, Date b)      { int r= _cmpnull(a,b); return r
 static public int cmpnull_ignorecase( String a, String b)  { int r= _cmpnull(a,b); return r!=NONULL ? r : a.compareToIgnoreCase(b); }
 
 static public boolean eq( String a, String b) { return a==null && b==null || a!=null && b!=null && a.equals(b); }
+static public boolean eq_ignorecase( String a, String b) { return a==null && b==null || a!=null && b!=null && a.equalsIgnoreCase(b); }
 static public boolean ne( String a, String b) { return !eq(a,b); }
 static public boolean lt( String a, String b) { return a.compareTo(b) < 0; }
 static public boolean gt( String a, String b) { return a.compareTo(b) > 0; }
@@ -293,6 +305,8 @@ boolean same( Class[][] x, Class[][] y) {
 }
 
 static public boolean contains( String c, String x)     { return c != null && x != null && c.contains( x); }
+static public boolean contains_aslowercase( String c, String x) {
+    return c != null && x != null && c.toLowerCase().contains( x.toLowerCase()); }
 static public boolean contains( Collection c, Object x) { return c != null && c.contains( x); }
 static public boolean contains( Map c, Object x)        { return c != null && c.containsKey( x); }
 static public boolean containsValue( Map c, Object x)   { return c != null && c.containsValue( x); }

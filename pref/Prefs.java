@@ -55,6 +55,9 @@ class Prefs implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public void set( int id, Object v) {
         v = _defs.get( id ).set( v);
+        _setDirect( id, v);
+    }
+    public void _setDirect( int id, Object v) {
         String key = context.getString( id);
         _setDirect( key, v);
     }
@@ -76,6 +79,7 @@ class Prefs implements SharedPreferences.OnSharedPreferenceChangeListener {
     public void del( int id) {
         set( id, null);
     }
+    public void _delDirect( int id) { _setDirect( id, null); }
 
     public void delAll() {
         SharedPreferences.Editor e = prefs.edit();

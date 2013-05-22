@@ -232,15 +232,21 @@ static public int cmp( float a, float b)    { return a<b?-1:(a>b?+1:0); }
 static public int cmp( boolean a, boolean b){ return a==b ? 0 : (a?+1:-1); }
 
 static public final int NONULL = 22;
-static public int _cmpnull( Object a, Object b) {
+static public int _cmpnull( Object a, Object b, boolean nulls_first) {
+    //null's first
     if (a==null && b==null) return 0;
-    if (a==null ) return -1;
-    if (b==null ) return +1;
+    if (a==null) return nulls_first ? -1 : +1;
+    if (b==null) return nulls_first ? +1 : -1;
     return NONULL;
 }
-static public int cmpnull( String a, String b)  { int r= _cmpnull(a,b); return r!=NONULL ? r : cmp(a,b); }
-static public int cmpnull( Date a, Date b)      { int r= _cmpnull(a,b); return r!=NONULL ? r : cmp(a,b); }
-static public int cmpnull_ignorecase( String a, String b)  { int r= _cmpnull(a,b); return r!=NONULL ? r : a.compareToIgnoreCase(b); }
+static public int cmpnull( String a, String b,  boolean nulls_first)             { int r= _cmpnull( a,b, nulls_first); return r!=NONULL ? r : cmp(a,b); }
+static public int cmpnull( Date a,   Date b,    boolean nulls_first)             { int r= _cmpnull( a,b, nulls_first); return r!=NONULL ? r : cmp(a,b); }
+static public int cmpnull_ignorecase( String a, String b, boolean nulls_first)   { int r= _cmpnull( a,b, nulls_first); return r!=NONULL ? r : a.compareToIgnoreCase(b); }
+static public int cmpnull_ignorecase_str( Object a, Object b, boolean nulls_first) { int r= _cmpnull( a,b, nulls_first); return r!=NONULL ? r : ((String)a).compareToIgnoreCase((String)b); }
+
+static public int cmpnull( String a, String b)  { return cmpnull(a,b,true); }
+static public int cmpnull( Date a,   Date b)    { return cmpnull(a,b,true); }
+static public int cmpnull_ignorecase( String a, String b)  { return cmpnull(a,b,true); }
 
 static public boolean eq( String a, String b) { return a==null && b==null || a!=null && b!=null && a.equals(b); }
 static public boolean eq_ignorecase( String a, String b) { return a==null && b==null || a!=null && b!=null && a.equalsIgnoreCase(b); }

@@ -666,6 +666,8 @@ class touchdb {
                 debug( "notifyDataSetChanged "+this + " " + funk.len( listeners));
                 for (Runnable r: listeners) r.run();
             }
+            public void listener( Runnable r)   { if (!funk.contains( listeners, r)) listeners.add( r); }
+            public void unlistener( Runnable r) { listeners.remove( r); }
         }
 
         static public

@@ -654,9 +654,15 @@ class touchdb {
             public boolean handleChange( String id, JsonNode doc, boolean deleted, long sequence ) {
                 debug( "handleChange "+id + " " + (deleted?"del":"") + " " + sequence + " "+this);
                 if (lastUpdateSequence != null && sequence <= lastUpdateSequence) return false;
-                if (!deleted) return handleChange( id, null==doc ? null : (ObjectNode)doc);
+                if (!deleted) {
+                    boolean r = handleChange( id, null==doc ? null : (ObjectNode)doc);
+                    if (r) notifyDataSetChanged();
+                    return r;
+                }
+                //deleted:
                 if (!has_id( id)) return false;
                 delete( id);
+                notifyDataSetChanged();
                 return true;
             }
 
@@ -680,17 +686,18 @@ class touchdb {
             public void delete( String id ) {
                 //funk.assertTrue( has_id( id));
                 clear();
-                notifyDataSetChanged();
             }
             public boolean handleChange( String id, ObjectNode doc) {
                 if (!has_id( id)) return false;
+                if (!db_is_object( doc)) return false;
                 load( doc);
-                notifyDataSetChanged();
                 return true;
             }
             public void init( ObjectNode doc) {   //these can be async
+                if (!db_is_object( doc)) return;
                 load( doc);
                 lastUpdateSequence = null; //handle all that happen
+                notifyDataSetChanged();
                 debug( "init "+this);
             }
         }

@@ -87,11 +87,11 @@ ArrayList< String> query1column( ContentResolver cr, Uri uri, String column, Str
 
 static public
 class aContact {
-    String id;
-    String name;
-    ArrayList< String > phones;
-    ArrayList< String > emails;
-    String mimeid;
+    public String id;
+    public String name;
+    public ArrayList< String > phones;
+    public ArrayList< String > emails;
+    public String mimeid;
     @Override public
     String toString() { return "aContact: id="+id
         + " name="+name

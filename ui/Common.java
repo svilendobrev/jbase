@@ -161,17 +161,6 @@ void toastLong(  Context context, int text) { Toast.makeText( context, text, Toa
 
 static public
 class dlg {
-/*
-    public
-    interface ok {
-        void ok() ;
-    }
-*/
-    public static abstract
-    class ok2 {
-        abstract public void ok( String input_text, View input) ;
-        public          void cancel( View input) {}
-    }
 /* AlertDialog always will be closed after ok().
 To re-show (e.g. because validate), store it and send a message:
     AlertDialog _dlg;
@@ -179,17 +168,18 @@ To re-show (e.g. because validate), store it and send a message:
         _dlg.show();
     }};
     ...
-        _dlg = Common.dlg._dlgOkCancel( ...
-            ok() {
+        _dlg = new Common.dlg.OkCancel(..) { ok() {
                 ...
                 _showHandler.sendEmptyMessage( 1234 );
   /////////////
     or, use ManagedDialog
 */
+    //override these
     static public String but_Ok = "Ok";
     static public String but_Cancel = "Cancel";
 
-    static public abstract class Edit extends Builder {
+    static public abstract
+    class Edit extends Builder {
         //override these
         abstract public void ok( String input_text, View input) ;
         public          void cancel( View input) {}
@@ -221,49 +211,9 @@ To re-show (e.g. because validate), store it and send a message:
         .setMessage( message)
         .show();
     */
-/*
-    static public
-    void _dlgEdit( final Context a, String title, String message, final ok2 okker, String text, Integer input_type) {
-        final EditText input = new EditText( a);
-        input.setText( text);
-        if (input_type!=null) input.setInputType( input_type);
-        Builder b = new Builder( a)
-        .setTitle( title)
-        .setMessage( message)
-        .setView( input)
-        .setPositiveButton( "Ok", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
-                hideKeyboard( a, input);
-                okker.ok( input.getText().toString().trim(), input );
-                }})
-        //.setOnCancelListener( new DialogInterface.OnCancelListener() { @Override public void onCancel( DialogInterface dialog) {
-        //    }})
-        .setNegativeButton( "Cancel", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
-                hideKeyboard( a, input);
-                okker.cancel( input ); } })
-        //null )
-        ;
-        b.create().show();
-    }
-//    static public
-//    void _dlgEdit( final Context a, String title, String message, final ok2 okker, String text)         { _dlgEdit( a, title, message, okker, text, null); }
-//    static public
-//    void _dlgEdit( final Context a, String title, String message, final ok2 okker, Integer input_type)  { _dlgEdit( a, title, message, okker, null, input_type); }
-    static public
-    void _dlgEdit( final Context a, String title, String message, final ok2 okker)  { _dlgEdit( a, title, message, okker, null, null); }
-    //static public
-    //void z_dlgEdit( Context a, String title, final ok okker, String text) {
-    //    _dlgEdit( a, title, okker, text, "Enter name:") }
-    static public
-    void dlgAdd( Context a, String kind, final ok2 okker ) {
-        _dlgEdit( a, "Add new " + kind, "Enter name:", okker ); }
-    static public
-    void dlgRename( Context a, String kind, String oldname, final ok2 okker, Integer input_type ) {
-        _dlgEdit( a, "Rename " + kind, "Enter name:", okker, oldname, input_type); }
-    static public
-    void dlgRename( Context a, String kind, String oldname, final ok2 okker) { dlgRename( a, kind, oldname, okker, null); }
-*/
 
-    static public class Ok extends Builder implements DialogInterface.OnClickListener {
+    static public
+    class Ok extends Builder implements DialogInterface.OnClickListener {
         public Ok( Context a)               { super(a); _init(); }
         public Ok( Context a, String title) { super(a); _init(); setTitle( title); }
         public Ok( Context a, int title)    { super(a); _init(); setTitle( title); }
@@ -272,77 +222,53 @@ To re-show (e.g. because validate), store it and send a message:
         @Override public void onClick( DialogInterface dialog, int which) { ok(); }
         private void _init() { setPositiveButton( but_Ok, this); }
     }
-    static public class OkCancel extends Ok {
+    /*new Ok( .. ) { public void ok() {
+        }}
+        .setTitle( title)
+        .setMessage( message)
+        .show();
+    */
+    static public
+    class OkCancel extends Ok {
         public OkCancel( Context a)                 { super(a); _init(); }
         public OkCancel( Context a, String title)   { super(a, title); _init(); }
         public OkCancel( Context a, int title)      { super(a, title); _init(); }
         private void _init() { setNegativeButton( but_Cancel, null); }
     }
-/*
-    static public
-    Builder _dlgOk( Context a, String title, String message, final ok okker ) {
-        return new Builder( a)
-        .setTitle( title)
-        .setMessage( message)
-        .setPositiveButton( "Ok", okker==null ? null :
-            new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
-                okker.ok(); }}
-            );
-    }
-    static public
-    Builder _dlgOkCancel( Context a, String title, String message, final ok okker ) {
-        return _dlgOk( a, title, message, okker )
-        .setNegativeButton( "Cancel", null);
-    }
-    static public
-    void dlgOkCancel( Context a, String title, final ok okker ) { dlgOkCancel( a, title, null, okker ); }
-    static public
-    void dlgOkCancel( Context a, String title, String message, final ok okker ) {
-        _dlgOkCancel( a, title, message, okker ) .create().show(); }
-*/
 
     public static abstract
-    class choice {
+    class Choice extends Builder implements DialogInterface.OnClickListener {
         abstract public Object  choice( int which ) ;
-        public          String  ask_name( Object choice ) { return null; }
-        public          void    ask_ok(   Object choice ) {}
+        public          String  ask_title( Object choice ) { return null; }
+        public          void    ask_ok(    Object choice ) {}
         //public          void    cancel() {}
+
+        public Choice( Context a, CharSequence[] items ) { super(a);
+            _ctx = a;
+            setItems( items, this);
+            setNegativeButton( but_Cancel, null );
+            //setNegativeButton( but_Cancel, new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
+            //  cancel(); }});
+        }
+        public Choice( Context a, List< String> items)  { this( a, toArray( items)); }
+
+        protected Context _ctx;
+        @Override public void onClick( DialogInterface dialog, int which) {
+            final Object item2del = choice( which);
+            String askt = ask_title( item2del);
+            if (funk.not( askt)) return;
+            new OkCancel( _ctx) { public void ok() {
+                    ask_ok( item2del);
+                }}
+                .setTitle( askt )
+                .show();
+        }
     }
 
         //final CharSequence[] items = new CharSequence[ funk.len( id_anchors) ];
         //int i = 0; for (int id: id_anchors) items[i++] = getString( id);
     static public CharSequence[] toArrayCS( List< CharSequence> items)  { return (CharSequence[]) items.toArray( new CharSequence[0]); }
     static public CharSequence[] toArray( List< String> items)       { return (CharSequence[]) items.toArray( new CharSequence[0]); }
-    static public
-    void _dlgChoose( final Context a, final String title, final CharSequence[] items, final choice okker, final boolean ask) {
-        new Builder( a)
-        .setTitle( title)
-        .setItems( items,
-            new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
-                final Object item2del = okker.choice( which);
-                if (!ask) return;
-                /*
-                dlgOkCancel( a, title+ " " + okker.ask_name( item2del) + " ?",
-                    new ok() { @Override public void ok() {
-                        okker.ask_ok( item2del);
-                    }});
-                    */
-                new OkCancel( a, title+ " " + okker.ask_name( item2del) + " ?" ) { public void ok() {
-                        okker.ask_ok( item2del);
-                    }} .show();
-            }})
-        //.setOnCancelListener( new DialogInterface.OnCancelListener() { @Override public void onCancel( DialogInterface dialog) {
-        //    }})
-        .setNegativeButton( "Cancel", null )
-        //.setNegativeButton( "Cancel", new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
-        //        okker.cancel(); } })
-        .create().show();
-    }
-    static public
-    void dlgDel( final Context a, final String kind, final CharSequence[] items, final choice okker ) {
-        String title = "Delete "+kind;
-        _dlgChoose( a, title, items, okker, true);
-    }
 } //dlg
 
 /////// contextMenus: see jbase/appbase/ActivityBase ; generic

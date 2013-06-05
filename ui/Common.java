@@ -161,10 +161,12 @@ void toastLong(  Context context, int text) { Toast.makeText( context, text, Toa
 
 static public
 class dlg {
+/*
     public
     interface ok {
         void ok() ;
     }
+*/
     public static abstract
     class ok2 {
         abstract public void ok( String input_text, View input) ;
@@ -184,6 +186,42 @@ To re-show (e.g. because validate), store it and send a message:
   /////////////
     or, use ManagedDialog
 */
+    static public String but_Ok = "Ok";
+    static public String but_Cancel = "Cancel";
+
+    static public abstract class Edit extends Builder {
+        //override these
+        abstract public void ok( String input_text, View input) ;
+        public          void cancel( View input) {}
+
+        public Edit( final Context a, String text, Integer input_type) { super(a);
+            final EditText input = new EditText( a);
+            input.setText( text);
+            if (input_type!=null) input.setInputType( input_type);
+            setView( input);
+            setPositiveButton( but_Ok, new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
+                hideKeyboard( a, input);
+                ok( input.getText().toString().trim(), input );
+                }});
+            setNegativeButton( but_Cancel, new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
+                hideKeyboard( a, input);
+                cancel( input );
+                }});
+        //.setOnCancelListener( new DialogInterface.OnCancelListener() { @Override public void onCancel( DialogInterface dialog) { ..
+        }
+        public Edit( final Context a, String text)          { this( a, text, null); }
+        public Edit( final Context a, Integer input_type)   { this( a, null, input_type); }
+        public Edit( final Context a)                       { this( a, null, null); }
+        //public Edit rename_kind( String kind)
+        //public Edit add_kind( String kind)
+    }
+    /*new Edit( .. ) { public void ok( String input_text, View input) {
+        }}
+        .setTitle( title)
+        .setMessage( message)
+        .show();
+    */
+/*
     static public
     void _dlgEdit( final Context a, String title, String message, final ok2 okker, String text, Integer input_type) {
         final EditText input = new EditText( a);
@@ -206,10 +244,10 @@ To re-show (e.g. because validate), store it and send a message:
         ;
         b.create().show();
     }
-    static public
-    void _dlgEdit( final Context a, String title, String message, final ok2 okker, String text)         { _dlgEdit( a, title, message, okker, text, null); }
-    static public
-    void _dlgEdit( final Context a, String title, String message, final ok2 okker, Integer input_type)  { _dlgEdit( a, title, message, okker, null, input_type); }
+//    static public
+//    void _dlgEdit( final Context a, String title, String message, final ok2 okker, String text)         { _dlgEdit( a, title, message, okker, text, null); }
+//    static public
+//    void _dlgEdit( final Context a, String title, String message, final ok2 okker, Integer input_type)  { _dlgEdit( a, title, message, okker, null, input_type); }
     static public
     void _dlgEdit( final Context a, String title, String message, final ok2 okker)  { _dlgEdit( a, title, message, okker, null, null); }
     //static public
@@ -223,9 +261,8 @@ To re-show (e.g. because validate), store it and send a message:
         _dlgEdit( a, "Rename " + kind, "Enter name:", okker, oldname, input_type); }
     static public
     void dlgRename( Context a, String kind, String oldname, final ok2 okker) { dlgRename( a, kind, oldname, okker, null); }
+*/
 
-    static public String but_Ok = "Ok";
-    static public String but_Cancel = "Cancel";
     static public class Ok extends Builder implements DialogInterface.OnClickListener {
         public Ok( Context a)               { super(a); _init(); }
         public Ok( Context a, String title) { super(a); _init(); setTitle( title); }

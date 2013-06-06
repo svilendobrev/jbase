@@ -38,6 +38,8 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import java.io.IOException;
+
 // Common ui functionalities
 public
 class Common {
@@ -404,6 +406,18 @@ void copyButtonStyle( Button from, Button to) {
 
     static public int getIntResource( Context c, int id) {
         return (Integer)c.getResources().getInteger( id);
+    }
+    static public String getRawTextResource( Context c, int id ) {
+        try {
+            //InputStream is = getAssets().open("disclaimer.txt");
+            InputStream is = c.getResources().openRawResource( id); //dR.raw.disclaimer);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read( buffer);
+            is.close();
+            return new String( buffer);
+        } catch (IOException e) { e.printStackTrace(); }
+        return null;
     }
 
 //from 2.0 onwards: see http://stackoverflow.com/questions/2000102/android-override-back-button-to-act-like-home-button

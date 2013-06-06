@@ -390,6 +390,11 @@ String unescape( String text, String esc, String[] delims) {
     return text;
 }
 
+static public
+String capitalize( String x) {
+    if (not(x)) return x;
+    return x.substring( 0,1).toUpperCase() + x.substring( 1);
+}
 
 /*
 static public <K,V> LinkedHashMap<K,V> cacheMap( final int max_capacity, int initial_capacity) {

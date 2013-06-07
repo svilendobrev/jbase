@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import android.widget.EditText;
 import android.content.DialogInterface;
+import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 
 import android.graphics.drawable.Drawable;
@@ -245,14 +246,15 @@ To re-show (e.g. because validate), store it and send a message:
         public          void    ask_ok(    Object choice ) {}
         //public          void    cancel() {}
 
-        public Choice( Context a, CharSequence[] items ) { super(a);
+        public Choice( Context a, CharSequence[] items )    { this( a); setItems( items, this); }
+        public Choice( Context a, List< String> items)      { this( a, toArray( items)); }
+
+        protected Choice( Context a) { super(a);
             _ctx = a;
-            setItems( items, this);
             setNegativeButton( but_Cancel, null );
             //setNegativeButton( but_Cancel, new DialogInterface.OnClickListener() { @Override public void onClick( DialogInterface dialog, int which) {
             //  cancel(); }});
         }
-        public Choice( Context a, List< String> items)  { this( a, toArray( items)); }
 
         protected Context _ctx;
         @Override public void onClick( DialogInterface dialog, int which) {
@@ -264,6 +266,23 @@ To re-show (e.g. because validate), store it and send a message:
                 }}
                 .setTitle( askt )
                 .show();
+        }
+    }
+    public static abstract
+    class Choice1 extends Choice {
+        public Choice1( Context a, CharSequence[] items) { this(a,items,-1,true); }
+        public Choice1( Context a, CharSequence[] items, int choosen) { this(a,items,choosen,true); }
+        public Choice1( Context a, CharSequence[] items, int choosen, boolean autoclose_at_click ) { super(a);
+            //XXX to close just in ask_ok, set autoclose=false and use _dlg.dismiss in ask_ok
+            _autoclose = autoclose_at_click;
+            setSingleChoiceItems( items, choosen, this);
+        }
+        public AlertDialog _dlg;
+        protected boolean _autoclose = false;
+        @Override public AlertDialog show() { return _dlg = super.show(); }
+        @Override public void onClick( DialogInterface dialog, int which) {
+            if (_autoclose) _dlg.dismiss();
+            super.onClick( dialog, which);
         }
     }
 

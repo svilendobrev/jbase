@@ -33,6 +33,8 @@ class MenuHandler implements MenuUpdater
 {
     abstract public void handle( MenuItemInfo item) ;
     public void update( MenuItemInfo item) {}
+    public MenuHandler() {}
+    public MenuHandler( MenuDescr menu, int id) { menu.put( id, this); }
 }
 
 public static

@@ -215,6 +215,17 @@ static public
 boolean in_split( String needle, String haystack) { return split( haystack).contains( needle); }
 
 static public
+<T> int indexOf( List<T> c, T x) { return (null==c) ? -1 : c.indexOf( x); }
+static public
+<T> int indexOf( T[] c,     T x) {
+    if (null==c) return -1;
+    for (int i=0; i<c.length; i++)
+        if (c[i].equals(x)) return i;
+    return -1;
+}
+
+
+static public
 void printStack( String pfx) {
     Log.d( pfx);
     try {

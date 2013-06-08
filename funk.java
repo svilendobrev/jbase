@@ -257,7 +257,7 @@ static public int cmpnull_ignorecase_str( Object a, Object b, boolean nulls_firs
 
 static public int cmpnull( String a, String b)  { return cmpnull(a,b,true); }
 static public int cmpnull( Date a,   Date b)    { return cmpnull(a,b,true); }
-static public int cmpnull_ignorecase( String a, String b)  { return cmpnull(a,b,true); }
+static public int cmpnull_ignorecase( String a, String b)  { return cmpnull_ignorecase(a,b,true); }
 
 static public boolean eq( String a, String b) { return a==null && b==null || a!=null && b!=null && a.equals(b); }
 static public boolean eq_ignorecase( String a, String b) { return a==null && b==null || a!=null && b!=null && a.equalsIgnoreCase(b); }

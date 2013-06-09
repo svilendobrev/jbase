@@ -109,7 +109,7 @@ View setOnClick( View context, int id, View.OnClickListener l ) {
 // use like   new Common.OnClick( this, R.id.butt ) { @Override public void onClick( View v) {
 abstract static public
 class OnClick implements View.OnClickListener {
-    //public void onClick( View v) {
+//usage: new Common.OnClick( ..) { @Override public void onClick(View v) { .. }};
     public OnClick( View v ) { v.setOnClickListener( this); }
     public OnClick( Activity context, int id) {
         funk.assertTrue( id !=0);
@@ -120,6 +120,22 @@ class OnClick implements View.OnClickListener {
         funk.assertTrue( id !=0);
         View v = context.findViewById( id);
         v.setOnClickListener( this);
+    }
+}
+
+abstract static public
+class OnLongClick implements View.OnLongClickListener {
+//usage: new Common.OnLongClick( ...) { @Override public boolean onLongClick( View v) { .. }};
+    public OnLongClick( View v ) { v.setOnLongClickListener( this); }
+    public OnLongClick( Activity context, int id) {
+        funk.assertTrue( id !=0);
+        View v = context.findViewById( id);
+        v.setOnLongClickListener( this);
+    }
+    public OnLongClick( View context, int id) {
+        funk.assertTrue( id !=0);
+        View v = context.findViewById( id);
+        v.setOnLongClickListener( this);
     }
 }
 

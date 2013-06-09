@@ -694,15 +694,20 @@ class touchdb {
                 return true;
             }
             public void init( ObjectNode doc) {   //these can be async
-                if (!db_is_object( doc)) return;
-                load( doc);
+                clear();
+                if (db_is_object( doc))
+                    load( doc);
                 lastUpdateSequence = null; //handle all that happen
-                notifyDataSetChanged();
                 debug( "init "+this);
+                notifyDataSetChanged();
             }
         }
 
-
+        public void initialNotify() {  //dispatch to all
+            debug( "initialNotify "+this);
+            for (ChangesDispatcher.Listener l: listeners)
+                l.notifyDataSetChanged();
+        }
 
         public long lastUpdateSequence = -1;    //runtime
         public ArrayList< Listener> listeners = new ArrayList();
@@ -718,7 +723,9 @@ class touchdb {
         ChangesTask task;
         String dbname;
         public void start( CouchDbConnector cdb, boolean includeDocs, Long since) {
-            if (task != null) return;
+            if (task != null) task.cancel( false );
+            task = null;
+
             ChangesCommand.Builder cmd = new ChangesCommand.Builder()
                     .continuous( true)
                     .heartbeat( 5000)    //ms

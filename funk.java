@@ -21,6 +21,7 @@ static public boolean empty( float x)  { return x == 0; }
 use not
 */
 static public boolean not( String x)        { return x == null || x.length()==0; }
+static public boolean not( CharSequence x)  { return x == null || x.length()==0; }
 static public boolean not( StringBuilder x) { return x == null || x.length()==0; }
 static public boolean not( Collection x)    { return x == null || x.isEmpty(); }
 static public boolean not( Map x)           { return x == null || x.isEmpty(); }
@@ -41,6 +42,7 @@ static public boolean not( Float   x)       { return x == null || x == 0; }
 static public boolean not( Double  x)       { return x == null || x == 0; }
 
 static public boolean any( String x)        { return x != null && x.length()>0; }
+static public boolean any( CharSequence x)  { return x != null && x.length()>0; }
 static public boolean any( StringBuilder x) { return x != null && x.length()>0; }
 static public boolean any( Collection x)    { return x != null && !x.isEmpty(); }
 static public boolean any( Map x)           { return x != null && !x.isEmpty(); }
@@ -61,6 +63,7 @@ static public boolean any( Float   x)       { return x != null && x != 0; }
 static public boolean any( Double  x)       { return x != null && x != 0; }
 
 static public     int len( String x)        { return x.length(); }
+static public     int len( CharSequence x)  { return x.length(); }
 static public     int len( StringBuilder x) { return x.length(); }
 static public     int len( Collection x)    { return x.size(); }
 static public     int len( Map x)           { return x.size(); }
@@ -71,7 +74,8 @@ static public     int len( boolean[] x)     { return x.length; }
 static public     int len( float[] x)       { return x.length; }
 
 static public <T>  T defaults( T x, T defaults)   { return x != null ? x : defaults; }
-static public String defaults_any( String x, String defaults)   { return any(x) ? x : defaults; }
+//static public String defaults_any( String x, String defaults)   { return any(x) ? x : defaults; }
+static public CharSequence defaults_any( CharSequence x, CharSequence defaults)   { return any(x) ? x : defaults; }
 
 static public Object first_non_null( Object... values) {
     for (Object o: values)

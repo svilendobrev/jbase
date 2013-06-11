@@ -205,6 +205,9 @@ void trim( List< String> r) {
         r.set( i, r.get(i).trim());
 }
 
+
+//see also  java.util.Arrays: static <T> List<T>   asList(T... array) : List-proxy to the array
+
 static public
 String[] toArray( Collection< String> x) { return (String[]) x.toArray( new String[0] ); }
 

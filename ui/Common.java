@@ -463,5 +463,13 @@ void copyButtonStyle( Button from, Button to) {
 //from 2.0 onwards: see http://stackoverflow.com/questions/2000102/android-override-back-button-to-act-like-home-button
 // @Override public void Activity.onBackPressed() { ... }
 
+//XXX tricks:
+//always show scrollbar:
+//  a:fadeScrollbars="false"
+//  maybe a:scrollbarAlwaysDrawVerticalTrack="true"
+//
+// for AutoCompleteTextView, in the adapter, in getView:
+//parent.setScrollbarFadingEnabled( false) ;    //parent= only way to access the dropdownLlst
+
 } // Common
 // vim:ts=4:sw=4:expandtab

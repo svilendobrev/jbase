@@ -202,9 +202,11 @@ To re-show (e.g. because validate), store it and send a message:
         //override these
         abstract public void ok( String input_text, View input) ;
         public          void cancel( View input) {}
+        public          void init() {}  //extra init stuff, e.g. input.setSomething
+
 
         public Edit( final Context a, String text, Integer input_type) { super(a);
-            final EditText input = new EditText( a);
+            input = new EditText( a);
             input.setText( text);
             if (input_type!=null) input.setInputType( input_type);
             setView( input);
@@ -221,8 +223,11 @@ To re-show (e.g. because validate), store it and send a message:
         public Edit( final Context a, String text)          { this( a, text, null); }
         public Edit( final Context a, Integer input_type)   { this( a, null, input_type); }
         public Edit( final Context a)                       { this( a, null, null); }
-        //public Edit rename_kind( String kind)
-        //public Edit add_kind( String kind)
+
+        public Edit singleLine() { input.setSingleLine(); return this; }
+        // input_type= android.text.InputType.TYPE_CLASS_TEXT also makes it single-line
+
+        protected EditText input;
     }
     /*new Edit( .. ) { public void ok( String input_text, View input) {
         }}

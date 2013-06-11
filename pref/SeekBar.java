@@ -12,14 +12,15 @@ import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.content.res.ColorStateList;
+import android.util.Log;
 
 public class SeekBar extends DialogPreference implements android.widget.SeekBar.OnSeekBarChangeListener {
     private android.widget.SeekBar seekBar;
     private TextView valueText;
 
     private CharSequence dlgMessage;
-    private String suffix;
-    private int defaultValue =0, maxValue =10000, step =1, value = 0;
+    protected String suffix;
+    private int defaultValue =0, maxValue =10000, step =1, value = 0, minValue = 0;
 
     public SeekBar( Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -28,6 +29,8 @@ public class SeekBar extends DialogPreference implements android.widget.SeekBar.
         step         = funk.defaults( pi.step, 1);
         maxValue     = funk.defaults( pi.max_value, 100);
         defaultValue = pi.default_value() == null ? 0 : (Integer) pi.default_value();
+
+        minValue     = funk.defaults( pi.min_value, 0);
 
         dlgMessage = getDialogMessage();
     }
@@ -77,9 +80,9 @@ public class SeekBar extends DialogPreference implements android.widget.SeekBar.
 
         seekBar = new android.widget.SeekBar( c);
         seekBar.setOnSeekBarChangeListener( this);
-        seekBar.setMax( maxValue);
+        seekBar.setMax( (maxValue - minValue )/step );
         seekBar.setKeyProgressIncrement( step);
-        seekBar.setProgress( value);
+        seekBar.setProgress( (value - minValue )/step );
         layout.addView( seekBar, params);
 
         return layout;
@@ -93,7 +96,7 @@ public class SeekBar extends DialogPreference implements android.widget.SeekBar.
     }
 
     public void onProgressChanged( android.widget.SeekBar seek, int value, boolean fromTouch) {
-        this.value = value;
+        this.value = value *step + minValue;
         updateValueText();
     }
     public void onStartTrackingTouch( android.widget.SeekBar seek) {}

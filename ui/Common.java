@@ -200,7 +200,7 @@ To re-show (e.g. because validate), store it and send a message:
     static public abstract
     class Edit extends Builder {
         //override these
-        abstract public void ok( String input_text, View input) ;
+        abstract public void ok( String input_text_trimmed, View input) ;
         public          void cancel( View input) {}
         public          void init() {}  //extra init stuff, e.g. input.setSomething
 

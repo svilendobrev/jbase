@@ -73,9 +73,15 @@ static public void hide( View v)        { setHidden(v); }
 static public void gone( View v)        { setHidden(v); }
 static public void invisible( View v)   { setInvisible(v); }
 
+static public void show( View v, int id, boolean b) { show( v.findViewById( id), b); }
+static public void show( View v, int id)            { show( v.findViewById( id)); }
+static public void hide( View v, int id)            { hide( v.findViewById( id)); }
+
 static public void enable( View v, boolean b)   { v.setEnabled( b); }
-static public void enable( View v)      { v.setEnabled( true); }
-static public void disable( View v)     { v.setEnabled( false); }
+static public void enable( View v)              { v.setEnabled( true); }
+static public void disable( View v)             { v.setEnabled( false); }
+static public void enable( View v, int id, boolean b)   { enable( v.findViewById( id), b); }
+static public void enable( View v, int id)              { enable( v.findViewById( id)); }
 
 /////// hierarchies
 

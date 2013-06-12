@@ -73,6 +73,10 @@ static public void hide( View v)        { setHidden(v); }
 static public void gone( View v)        { setHidden(v); }
 static public void invisible( View v)   { setInvisible(v); }
 
+static public void enable( View v, boolean b)   { v.setEnabled( b); }
+static public void enable( View v)      { v.setEnabled( true); }
+static public void disable( View v)     { v.setEnabled( false); }
+
 /////// hierarchies
 
 static public

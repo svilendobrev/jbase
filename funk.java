@@ -204,7 +204,11 @@ void trim( List< String> r) {
     for (int i=0; i<r.size(); i++)
         r.set( i, r.get(i).trim());
 }
-
+static public
+void truncate( List< String> r, int max) {  //wtf.. removeRange() is protected
+    for (int i= len( r); --i>=max; )
+        r.remove( i);
+}
 
 //see also  java.util.Arrays: static <T> List<T>   asList(T... array) : List-proxy to the array
 

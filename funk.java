@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Arrays;
 import junit.framework.Assert;
 import java.util.LinkedHashMap;
+import java.util.Comparator;
 
 public class funk {
 /*
@@ -436,6 +437,10 @@ static public class CacheMap <K,V> extends LinkedHashMap<K,V> {
 
     protected boolean removeEldestEntry( Map.Entry eldest) { return size() > max_capacity; }
 }
+
+static public
+Comparator< String > comparator_null_ignorecase_str = new Comparator() { public int compare( Object a, Object b) {
+    return cmpnull_ignorecase_str( a, b, true); } };
 
 } //funk
 // vim: ts=4:sw=4:expandtab

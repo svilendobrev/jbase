@@ -150,22 +150,25 @@ void split( String input, String regex, Collection< String> r, boolean skip_empt
     }
 }
 static public
-String join( String[] input, String sep, boolean trim ) {
+String join( String[] input, String sep, boolean trim, boolean skip_empties ) {
     String r = "";
     for (String g: input) {
+        if (funk.not(g) && skip_empties) continue;
+        if (funk.any(g) && trim) g = g.trim();
         if (any(r)) r+= sep;
-        if (trim) g = g.trim();
         r += g;
     }
     if (trim) r = r.trim();
     return r;
 }
+
 static public
-String join( Collection< String> input, String sep, boolean trim ) {
+String join( Collection< String> input, String sep, boolean trim, boolean skip_empties ) {
     String r = "";
     for (String g: input) {
+        if (funk.not(g) && skip_empties) continue;
+        if (funk.any(g) && trim) g = g.trim();
         if (any(r)) r+= sep;
-        if (trim) g = g.trim();
         r += g;
     }
     if (trim) r = r.trim();
@@ -195,10 +198,20 @@ static public   String rsplit_last( String input, String regex ) {
     return r.get( r.size() -1 );
 }
 
-static public   String join_trim( Collection< String> input, String sep) { return join( input, sep, true); }
-static public   String join_trim( String[] input, String sep) { return join( input, sep, true); }
 static public   String join( Collection< String> input, String sep) { return join( input, sep, false); }
-static public   String join( String[] input, String sep) { return join( input, sep, false); }
+static public   String join( String[]            input, String sep) { return join( input, sep, false); }
+static public   String join( String sep, boolean trim, String ... input ) { return join( input, sep, trim); }
+static public   String join( Collection< String> input, String sep, boolean trim) { return join( input, sep, trim, false); }
+static public   String join( String[]            input, String sep, boolean trim) { return join( input, sep, trim, false); }
+
+static public   String join_trim( Collection< String> input, String sep) { return join( input, sep, true); }
+static public   String join_trim( String[]            input, String sep) { return join( input, sep, true); }
+static public   String join_trim( String sep, Collection< String> input) { return join( input, sep, true); }
+static public   String join_trim( String sep, String ... input ) { return join( input, sep, true); }
+static public   String join_trim_skip( String sep, Collection< String> input) { return join( input, sep, true, true); }
+static public   String join_trim_skip( String sep, String ...          input) { return join( input, sep, true, true); }
+
+
 
 static public
 void trim( List< String> r) {

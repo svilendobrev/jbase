@@ -180,10 +180,13 @@ RELDIR_root = /somewhere/android
 RELDIR = $(RELDIR_root)/$(APPNAME)
 RELTARGET = $(RELDIR)/$(APPNAME)
 
+VERPACK= `perl -ne 'print $$1 if s/android:versionName="([^"]+)"//' bin/AndroidManifest.xml`
+
 rel release:
 	#mkdir -p $(RELDIR)/old/
 	#mv $(RELDIR)/*apk $(RELDIR)/old/
-	cp $(PACK) $(RELTARGET)_`date +%Y%m%d`_$(VER).apk
+	cp $(PACK) $(RELTARGET)_`date -r $(PACK) +%Y%m%d`_$(VERPACK).apk
+#	cp $(PACK) $(RELTARGET)_`date +%Y%m%d`_$(VER).apk
 
 PID=$(APP)
 memtrace:

@@ -693,10 +693,11 @@ class touchdb {
                 load( doc);
                 return true;
             }
-            public void init( ObjectNode doc) {   //these can be async
+            public void init( ObjectNode ... docs) {   //these can be async
                 clear();
-                if (db_is_object( doc))
-                    load( doc);
+                for (ObjectNode doc: docs)
+                    if (db_is_object( doc))
+                        load( doc);
                 lastUpdateSequence = null; //handle all that happen
                 debug( "init "+this);
                 notifyDataSetChanged();

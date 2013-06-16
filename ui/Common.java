@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.ContextMenu;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 
 import android.view.inputmethod.InputMethodManager;
 
@@ -469,6 +470,12 @@ void copyButtonStyle( Button from, Button to) {
         } catch (IOException e) { e.printStackTrace(); }
         return null;
     }
+
+static public ArrayList< String> ids2strings( Context ctx, int... ids) {
+    ArrayList< String> r = new ArrayList();
+    for (int id: ids) r.add( ctx.getString( id));
+    return r;
+}
 
 //from 2.0 onwards: see http://stackoverflow.com/questions/2000102/android-override-back-button-to-act-like-home-button
 // @Override public void Activity.onBackPressed() { ... }

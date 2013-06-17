@@ -201,6 +201,7 @@ static public   String rsplit_last( String input, String regex ) {
 static public   String join( Collection< String> input, String sep) { return join( input, sep, false); }
 static public   String join( String[]            input, String sep) { return join( input, sep, false); }
 static public   String join( String sep, boolean trim, String ... input ) { return join( input, sep, trim); }
+static public   String join( String sep, String ... input ) { return join( input, sep, false); }
 static public   String join( Collection< String> input, String sep, boolean trim) { return join( input, sep, trim, false); }
 static public   String join( String[]            input, String sep, boolean trim) { return join( input, sep, trim, false); }
 

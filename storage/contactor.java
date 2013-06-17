@@ -152,8 +152,33 @@ ArrayList< aContact> getContacts( ContentResolver cr, String id, String mimetype
 static public ArrayList< aContact> getContacts( Context a, String id, String mimetype) { return getContacts( a.getContentResolver(), id, mimetype); }
 static public ArrayList< aContact> getContacts( Context a, String id) { return getContacts( a, id, null); }
 public static ArrayList< aContact> getContacts( Context a) { return getContacts( a, null, null ); }
-public static aContact getContact( Context a, String id, String mimetype) { return funk.get( getContacts( a, id, mimetype), 0, null ); }
+public static aContact getContact( Context a, String id, String mimetype) {
+    ArrayList< aContact> cc = getContacts( a, id, mimetype);
+    funk.assertTrue( funk.len( cc) <=1);
+    return funk.get( cc, 0, null ); }
 public static aContact getContact( Context a, String id) { return getContact( a, id, null); }
+
+//static public
+//ArrayList< aContact> getContacts_by_email( ContentResolver cr, String email, String mimetype) {
+static public
+ArrayList< String> getContactIDs_by_emails( ContentResolver cr, String... emails) {
+    ArrayList< String > ids = query1column( cr,
+        CommonDataKinds.Email.CONTENT_URI,
+        CommonDataKinds.Email.CONTACT_ID,
+        //maybe also Email.TYPE : CommonDataKinds.Email.getTypeLabelResource( cursor.getInt( ) )
+        CommonDataKinds.Email.DATA      // use Email.ADDRESS for API-Level 11+
+                   //+ "="+email,
+                   + " IN ('"+funk.join_trim_skip("','")+"'" //email,
+            , null, null );
+    Log.v( TAG, "got ids: " + ids + " for "+emails);
+    return ids;
+//    ArrayList< aContact> r = new ArrayList();
+//    for (String id: ids)
+//        funk.addAll( r, getContacts( cr, id, mimetype));
+//    return r;
+}
+static public ArrayList< String> getContactIDs_by_emails( Context a, String... emails) { return getContactIDs_by_emails( a.getContentResolver(), emails); }
+
 
 /*
 Builder builder = ContentProviderOperation

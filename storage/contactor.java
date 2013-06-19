@@ -16,7 +16,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import android.util.Log;
-
+import java.util.Collections;
 import java.util.ArrayList;
 
 // AndroidManifest.xml:
@@ -109,23 +109,23 @@ static aContact loadContact( ContentResolver cr, Cursor c, String mimetype ) {
     ac.name = c.getString( c.getColumnIndex( Contacts.DISPLAY_NAME));
     if (Integer.parseInt( c.getString( c.getColumnIndex( Contacts.HAS_PHONE_NUMBER))) > 0)
         ac.phones = query1column( cr,
-               CommonDataKinds.Phone.CONTENT_URI,
-               CommonDataKinds.Phone.NUMBER,
-               CommonDataKinds.Phone.CONTACT_ID +"="+ac.id,
-               null, null);
+                CommonDataKinds.Phone.CONTENT_URI,
+                CommonDataKinds.Phone.NUMBER,
+                CommonDataKinds.Phone.CONTACT_ID +"="+ac.id,
+                null, null);
     ac.emails = query1column( cr,
-        CommonDataKinds.Email.CONTENT_URI,
-        CommonDataKinds.Email.DATA,     // use Email.ADDRESS for API-Level 11+
-        //maybe also Email.TYPE : CommonDataKinds.Email.getTypeLabelResource( cursor.getInt( ) )
-        CommonDataKinds.Email.CONTACT_ID + "="+ac.id,
-            null, null );
+                CommonDataKinds.Email.CONTENT_URI,
+                CommonDataKinds.Email.DATA,     // use Email.ADDRESS for API-Level 11+
+                //maybe also Email.TYPE : CommonDataKinds.Email.getTypeLabelResource( cursor.getInt( ) )
+                CommonDataKinds.Email.CONTACT_ID + "="+ac.id,
+                null, null );
     if (funk.any( mimetype))
         ac.mimeid = funk.get( query1column( cr,
-            Data.CONTENT_URI,
-            Data.DATA1,
-            Data.CONTACT_ID + "=? AND " + Data.MIMETYPE + "=?" //// '" +mimetype+ "'",
-                ,new String[] { ac.id, mimetype },
-            null ),
+                Data.CONTENT_URI,
+                Data.DATA1,
+                Data.CONTACT_ID + "=? AND " + Data.MIMETYPE + "=?" //// '" +mimetype+ "'",
+                    ,new String[] { ac.id, mimetype },
+                null ),
             0, null);
     return ac;
 }
@@ -143,7 +143,7 @@ ArrayList< aContact> getContacts( ContentResolver cr, String id, String mimetype
             aContact ac = loadContact( cr, c, mimetype);
             r.add( ac);
         } while (c.moveToNext());
-        Log.v( TAG, "got contacts["+funk.defaults( id,"")+ "]: " + r);
+        Log.v( TAG, "got contacts["+funk.defaults( id,"")+ "]: " + funk.len(r) );
     } catch (Exception e) { Log.e( TAG, "getContacts: Failed", e); }
 
     if (c != null) c.close();
@@ -162,14 +162,15 @@ public static aContact getContact( Context a, String id) { return getContact( a,
 //ArrayList< aContact> getContacts_by_email( ContentResolver cr, String email, String mimetype) {
 static public
 ArrayList< String> getContactIDs_by_emails( ContentResolver cr, String... emails) {
+    if (funk.not( emails)) return null;
     ArrayList< String > ids = query1column( cr,
-        CommonDataKinds.Email.CONTENT_URI,
-        CommonDataKinds.Email.CONTACT_ID,
-        //maybe also Email.TYPE : CommonDataKinds.Email.getTypeLabelResource( cursor.getInt( ) )
-        CommonDataKinds.Email.DATA      // use Email.ADDRESS for API-Level 11+
-                   //+ "="+email,
-                   + " IN ('"+funk.join_trim_skip("','")+"'" //email,
-            , null, null );
+            CommonDataKinds.Email.CONTENT_URI,
+            CommonDataKinds.Email.CONTACT_ID,
+            funk.join_trim( " or ", Collections.nCopies( funk.len( emails),
+                            CommonDataKinds.Email.DATA      // use Email.ADDRESS for API-Level 11+
+                               +"=?" )
+                          )   //no IN ()
+            , emails, null );
     Log.v( TAG, "got ids: " + ids + " for "+emails);
     return ids;
 //    ArrayList< aContact> r = new ArrayList();

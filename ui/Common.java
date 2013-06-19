@@ -499,6 +499,7 @@ horz-scrollable:
  for AutoCompleteTextView, in the adapter, in getView:
 parent.setScrollbarFadingEnabled( false) ;    //parent= only way to access the dropdownLlst
 
+XXX ellipsize=anything cuts to 2 lines max
 */
 
 } // Common

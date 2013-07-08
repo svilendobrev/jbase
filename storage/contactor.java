@@ -99,6 +99,7 @@ class aContact {
         + " emails="+emails
         + " mimeid="+mimeid
         ; }
+    //public String all;
 }
 
 static String _mimetype = "vnd.android.cursor.item/something";
@@ -107,6 +108,9 @@ static aContact loadContact( ContentResolver cr, Cursor c, String mimetype ) {
     aContact ac = new aContact();
     ac.id   = c.getString( c.getColumnIndex( Contacts._ID));
     ac.name = c.getString( c.getColumnIndex( Contacts.DISPLAY_NAME));
+    //ac.all = "";
+    //for (String i: c.getColumnNames())
+    //    ac.all += " "+i+":"+c.getString( c.getColumnIndex( i));
     if (Integer.parseInt( c.getString( c.getColumnIndex( Contacts.HAS_PHONE_NUMBER))) > 0)
         ac.phones = query1column( cr,
                 CommonDataKinds.Phone.CONTENT_URI,

@@ -48,7 +48,7 @@ import org.ektorp.android.util.ChangesFeedAsyncTask;
 import org.ektorp.support.CouchDbRepositorySupport;
 //import org.ektorp.support.DesignDocument;
 
-//import com.couchbase.touchdb.TDDatabase;
+import com.couchbase.touchdb.TDDatabase;
 import com.couchbase.touchdb.TDServer;
 //import com.couchbase.touchdb.TDView;
 import com.couchbase.touchdb.ektorp.TouchDBHttpClient;
@@ -66,6 +66,8 @@ import java.util.HashMap;
 import java.util.Collection;
 import java.util.Iterator;
 
+import java.net.URL;
+import java.net.MalformedURLException;
 
 public abstract
 class touchdb {
@@ -80,12 +82,9 @@ class touchdb {
     protected
     static TDServer server;
     static HttpClient httpClient;
-    public
-    CouchDbInstance dbInstance;
-    public
-    HashMap< String, CouchDbConnector>      databases = new HashMap();
-    public
-    ArrayList< CouchbaseViewListAdapter>    adapters = new ArrayList();
+    public CouchDbInstance dbInstance;
+    public HashMap< String, CouchDbConnector>      databases = new HashMap();
+    //public ArrayList< CouchbaseViewListAdapter>    adapters = new ArrayList();    //not used - see dispatchers
 
     public
     HashMap< String, Map< String, Boolean>> dbname2view2value_is_doc = new HashMap();
@@ -116,7 +115,8 @@ class touchdb {
         if (server == null) return;
 
         databases.clear();
-        adapters.clear();
+        dispatchers.clear();
+        //adapters.clear();
         dbname2view2value_is_doc.clear();
         dbname2open.clear();
 
@@ -150,12 +150,15 @@ class touchdb {
     public
     void close() {
         debug( "stopDB");
+        onStop();
         _isDatabaseOK = false;
 
         //stop the async tasks that follow the changes feed
-        for (CouchbaseViewListAdapter a : adapters)
-            a.cancelContinuous();
-        adapters.clear();
+        for (ChangesDispatcher d : dispatchers)
+            d.stop();
+        dispatchers.clear();
+        //for (CouchbaseViewListAdapter a : adapters) a.cancelContinuous();
+        //adapters.clear();
 
         //for (CouchDbConnector c: databases.getValues()) ..
         databases.clear();
@@ -187,10 +190,11 @@ class touchdb {
     public      boolean isDatabaseOK() { return _isDatabaseOK; }
     protected
     void onDatabasesOK() {}             //XXX do override
-        //debug( "onDatabasesOK - attach adapters to the list etc");
-        // itemListView.setAdapter( makeAdapter( dbname, viewQuery) );
+
     protected
     void onStartedAllOK() {}            //XXX do override
+    protected
+    void onStop() {}                    //XXX do override
 
 
     static
@@ -210,6 +214,9 @@ class touchdb {
             return null != server.getDatabaseNamed( db.getDatabaseName(), false ).getExistingViewNamed( dd+"/all" );
 	    }
     }
+
+    public boolean resetReplications = false;   //XXX how to trigger / request this?
+    // ..../replicator/TDPusher.java processInbox()  sendAsyncRequest( "POST", "/_bulk_docs" .. onCompletion()
 
 ///////////// internals
 
@@ -354,6 +361,20 @@ class touchdb {
 */
 
     void _startReplication( String dbname, String sync_url) {
+        if (resetReplications) {
+            debug( "resetReplications " +dbname + " > " + sync_url);
+            TDDatabase td = server.getDatabaseNamed( dbname, false);
+            if (null!=td) { //from TDRouter.do_POST_replicate
+                URL remote = null;
+                try { remote = new URL( sync_url); } catch (MalformedURLException e) {}
+                if (null==remote || !remote.getProtocol().startsWith( "http")) {
+                    debug( "bad url " + sync_url); //and flow as usual
+                } else {
+                    td.setLastSequence( "0", remote, false);
+                    td.setLastSequence( "0", remote, true);
+                }
+            }
+        }
 
         debug( "startReplication push " +dbname + " > " + sync_url);
         final ReplicationCommand pushReplicationCommand = new ReplicationCommand.Builder()
@@ -736,6 +757,7 @@ class touchdb {
             task = new ChangesTask( cdb, cmd.build(), this);
             dbname = cdb.getDatabaseName();
             debug( "start "+task + " "+ dbname + " "+since);
+            //touchdb.dispatchers.add( this);
             task.execute();
         }
         public void stop() {
@@ -761,6 +783,7 @@ class touchdb {
         }
         //@Override protected void onDbAccessException( DbAccessException e) { handleChangesAsyncTaskDbAccessException( e); }
     }
+    protected ArrayList< ChangesDispatcher> dispatchers = new ArrayList();
 
     ////////// app specific XXX - inherit then whatever /////////
 /*  //as in jbase.sqlite:

@@ -1,0 +1,27 @@
+#!/bin/sh
+#file://localhost/osha/android/sdk/docs/guide/publishing/app-signing.html
+#http://stackoverflow.com/questions/7119839/re-sign-an-android-apk
+#http://stackoverflow.com/questions/2914105/android-what-is-install-parse-failed-no-certificates-error
+
+#set -x
+
+if [ -d "$1" ] ; then
+cd "$1"
+else
+DIR="$1".dir
+mkdir -p "$DIR"
+cd "$DIR"
+unzip ../"$1"
+rm -rf META-INF/
+fi
+/home/android-sdk-linux_86/build-tools/17.0.0/aapt p --debug-mode -F ../new_unsigned.apk .
+cd ..
+cp new_unsigned.apk new_unaligned.apk
+
+KEYSTORE=mydebug.keystore
+JDK7="-sigalg MD5withRSA -digestalg SHA1"
+jarsigner  -verbose $JDK7 -keystore ~/.android/$KEYSTORE -storepass android ./new_unaligned.apk androiddebugkey
+
+/home/android-sdk-linux_86/tools/zipalign -f 4 new_unaligned.apk new.apk
+
+echo make inst PACK=new.apk

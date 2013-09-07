@@ -90,10 +90,10 @@ install: build
 #	adb shell setprop dalvik.vm.enableassertions all
 
 inst:
-	adb -e install -r $(PACK) 2>&1 | grep -v bytes.in
+	adb -e install -r "$(PACK)" 2>&1 | grep -v bytes.in
 
 phone:
-	adb -d install -r $(PACK)
+	adb -d install -r "$(PACK)"
 
 
 

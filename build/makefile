@@ -118,7 +118,7 @@ adbkill:
 adb:
 	adb $(ARGS)
 
-adbdev:
+adbdev: 	#if error: ... no permissions, restart adb-demon with sudo
 	adb devices
 
 android:
